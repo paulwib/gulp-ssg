@@ -1,0 +1,149 @@
+A [gulp][] plugin to generate a static site.
+
+## Usage
+
+```javascript
+var ssg = require('gulp-ssg');
+var site = {
+    title: 'My site'
+};
+
+gulp.task('html', function() {
+    return gulp.src('content/**/*.md')
+        .pipe(ssg(site))
+        .pipe(gulp.dest('public/'));
+});
+```
+
+This will rename the files so they have pretty URLs e.g.
+
+    content/index.md        -> public/index.html
+    content/foo.md          -> public/foo/index.html
+    content/bar/index.md    -> public/bar/index.html
+    content/bar/hello.md    -> public/bar/hello/index.html
+
+It will also add properties to a `meta` object of each file:
+
+* `file.meta.url`
+* `file.meta.isHome`
+* `file.meta.isIndex`
+* `file.meta.sectionUrl`
+* `file.meta.section`
+
+Finally, it will add an `index` property to the passed in site object which is a tree of all the content.
+The above example would look like:
+
+```javascript
+
+    {
+        name: 'root',
+        url: '/',
+        files: [<index.html>, <foo/index.html> ] // All files in this section
+        sections: [
+            {
+                name: 'bar',
+                url: 'bar',
+                files: [<bar/index.html>, <bar/foo/index.html>]
+            }
+        ]
+    }
+```
+
+As implied above each file has a reference back to it's section in this tree.
+
+## Example
+
+It gets more interesting when combined with other pipes. For example:
+
+```javascript
+var ssg = require('gulp-ssg');
+var frontmatter = require('gulp-front-matter');
+var marked = require('gulp-marked');
+var site = {
+    title: 'My site'
+};
+
+gulp.task('html', function() {
+    return gulp.src('content/**/*.md')
+        .pipe(frontmatter({
+            property: 'meta'
+        }))
+        .pipe(marked())
+        .pipe(ssg(site, {
+            property: 'meta'
+        }))
+        .pipe(gulp.dest('public/'));
+});
+```
+
+This will extract any YAML front-matter, convert the content of each file from markdown to HTML, then run the ssg. The data extracted from the front-matter will be combined with the data extracted by the ssg in the `meta` property.
+
+## Templates
+
+A common requirement of static sites is to pass the content through some template engine. There is nothing built into `gulp-ssg` to do this, but it's very easy to add :)
+
+After the step above you will have created a bunch of HTML files. Now you can run them through a templating pipe. Because all the files are processed before the pipe the template will have access to the complete site index.
+
+So to add this to the above example:
+
+```javascript
+var ssg = require('gulp-ssg');
+var frontmatter = require('gulp-front-matter');
+var marked = require('gulp-marked');
+var fs = require('fs');
+var es = require('event-stream');
+var mustache = require('mustache');
+var site = {
+    title: 'My site'
+};
+
+gulp.task('html', function() {
+
+    var template = String(fs.readFileSync('templates/page.html'));
+
+    return gulp.src('content/**/*.md')
+        .pipe(frontmatter({
+            property: 'meta'
+        }))
+        .pipe(marked())
+        .pipe(ssg(site, {
+            property: 'meta'
+        }))
+        .pipe(es.map(function(file, cb) {
+            var html = mustache.render(template, {
+                page: file.meta,
+                site: site,
+                content: String(file.contents)
+            });
+            file.contents = new Buffer(html);
+            cb(null, file);
+        }))
+        .pipe(gulp.dest('public/'));
+});
+```
+
+This uses `es.map` to modify the stream directly, but if you have a common way of rendering many sites it might be worth writing a little plug-in with a bit more error handling etc.
+
+## Options
+
+### baseUrl `string`
+
+The base URL of the site, defaults to '/'. This should be the path to where your site will eventually be deployed.
+
+### sort `string`
+
+A property to sort pages by in the index, defaults to `url`. For example, this could be a property like `order` extracted from the YAML front-matter, giving content editors full control over the order of pages.
+
+### property `string`
+
+The name of the property to attach data to, defaults to `meta`.
+
+### sectionProperties `array`
+
+A list of properties to extract from index pages to add to the section, defaults to an empty list. For example, you could add a `sectionTitle` to front-matter in your `index.md` files, then use this it as link titles for a global navigation.
+
+## Caveats
+
+* Each directory *must* contain a file with a base name of `index` (e.g. `index.md`) to have the site index fully traversed.
+
+[gulp]:http://gulpjs.com
