@@ -146,9 +146,7 @@ A list of properties to extract from index pages to add to the section, defaults
 
 * Each directory *must* contain a file with a base name of `index` (e.g. `index.md`) to have the site index fully traversed.
 
-## Extra Tips
-
-## Site Preview
+## Previewing Your Website
 
 Add a `watch` task to run a server for previewing your website:
 
