@@ -155,8 +155,6 @@ var http = require('http'),
 	ecstatic = require('ecstatic');
 
 gulp.task('watch', function() {
-
-    // Create a server for previewing
 	http.createServer(
         ecstatic({ root: __dirname + '/public'  })
     ).listen(8745);
