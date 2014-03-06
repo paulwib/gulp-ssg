@@ -146,4 +146,29 @@ A list of properties to extract from index pages to add to the section, defaults
 
 * Each directory *must* contain a file with a base name of `index` (e.g. `index.md`) to have the site index fully traversed.
 
+## Extra Tips
+
+## Site Preview
+
+Add a `watch` task to run a server for previewing your website:
+
+```javascript
+var http = require('http'),
+	ecstatic = require('ecstatic');
+
+gulp.task('watch', function() {
+
+    // Create a server for previewing
+	http.createServer(
+        ecstatic({ root: __dirname + '/public'  })
+    ).listen(8745);
+    console.log('Preview at http://localhost:8745');
+
+    gulp.watch('content/', ['html']);
+    gulp.watch('templates/', ['default']);
+});
+```
+
+
+
 [gulp]:http://gulpjs.com
