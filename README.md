@@ -30,7 +30,7 @@ It will also add properties to a `meta` object of each file:
 * `file.meta.sectionUrl`
 * `file.meta.section`
 
-Finally, it will add an `index` property to the passed in site object which is a tree of all the content.
+Finally, it will add an `index` property to the passed in `site` object which is a tree of all the content.
 The above example would look like:
 
 ```javascript
@@ -80,9 +80,9 @@ This will extract any YAML front-matter, convert the content of each file from m
 
 ## Templates
 
-A common requirement of static sites is to pass the content through some template engine. There is nothing built into `gulp-ssg` to do this, but it's very easy to add :)
+A common requirement of static sites is to pass the content through some template engine. There is nothing built into `gulp-ssg` to do this, but it's very easy to add with another pipe.
 
-After the step above you will have created a bunch of HTML files. Now you can run them through a templating pipe. Because all the files are processed before the pipe the template will have access to the complete site index.
+After the step above you will have created a bunch of HTML files. Now you can run them through a templating pipe. All the files are processed before the next pipe, so the template will have access to the complete site index for things like generating global navigation, or a list of sub-pages in the current section.
 
 So to add this to the above example:
 
@@ -140,7 +140,7 @@ The name of the property to attach data to, defaults to `meta`.
 
 ### sectionProperties `array`
 
-A list of properties to extract from index pages to add to the section, defaults to an empty list. For example, you could add a `sectionTitle` to front-matter in your `index.md` files, then use this it as link titles for a global navigation.
+A list of properties to extract from index pages to add to the section, defaults to an empty list. For example, you could add a `sectionTitle` to front-matter in your `index.md` files, then use this it for link text in your global navigation.
 
 ## Caveats
 
