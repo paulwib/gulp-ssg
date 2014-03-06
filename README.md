@@ -124,6 +124,10 @@ gulp.task('html', function() {
 
 This uses `es.map` to modify the stream directly, but if you have a common way of rendering many sites it might be worth writing a little plug-in with a bit more error handling etc.
 
+## Caveats
+
+* Each directory *must* contain a file with a base name of `index` (e.g. `index.md`) to have the site index fully traversed.
+
 ## Options
 
 ### baseUrl `string`
@@ -141,10 +145,6 @@ The name of the property to attach data to, defaults to `meta`.
 ### sectionProperties `array`
 
 A list of properties to extract from index pages to add to the section, defaults to an empty list. For example, you could add a `sectionTitle` to front-matter in your `index.md` files, then use this it for link text in your global navigation.
-
-## Caveats
-
-* Each directory *must* contain a file with a base name of `index` (e.g. `index.md`) to have the site index fully traversed.
 
 ## Previewing Your Website
 
