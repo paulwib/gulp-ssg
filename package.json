@@ -34,5 +34,13 @@
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha"
   },
+  "keywords": [
+    "gulpplugin",
+    "static",
+    "site",
+    "website",
+    "generator",
+    "build"
+  ],
   "license": "MIT"
 }
