@@ -76,6 +76,18 @@ module.exports = function(site, options) {
 
         if (options.sort) {
             buffer.sort(function(a, b) {
+                var aDepth = a.meta.url.split('/').length;
+                var bDepth = b.meta.url.split('/').length;
+                if (aDepth < bDepth) {
+                    return -1;
+                }
+                if (bDepth < aDepth) {
+                    return 1;
+                }
+                if (a.isIndex) {
+                    return -1;
+                }
+
                 return a[options.property][options.sort] >= b[options.property][options.sort] ? 1 : -1;
             });
         }

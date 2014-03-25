@@ -420,14 +420,16 @@ describe('gulp-ssg()', function() {
             var home = getMarkdownFile('test/index.md', 'home');
             var page1 = getMarkdownFile('test/xyz.md', 'page');
             var page2 = getMarkdownFile('test/abc.md', 'page');
+            var page3 = getMarkdownFile('test/def.md', 'page');
             var sectionIndex = getMarkdownFile('test/foo/index.md', 'section index');
             var sectionPage1 = getMarkdownFile('test/foo/10-hello.md', 'section page');
             var sectionPage2 = getMarkdownFile('test/foo/05-goodbye.md', 'section page');
 
-            page1.page = { order: 1 };
-            page2.page = { order: 2 };
-            sectionPage1.page = { order: 1 };
-            sectionPage2.page = { order: 30 };
+            page1.meta = { order: 1 };
+            page2.meta = { order: 12 };
+            page3.meta = { order: 6 };
+            sectionPage1.meta = { order: 1 };
+            sectionPage2.meta = { order: 2 };
 
             stream.on('end', function() {
                 var urls = site.index.files.map(function(file) {
@@ -436,6 +438,7 @@ describe('gulp-ssg()', function() {
                 expect(urls).to.deep.equal([
                     '/',
                     '/xyz/',
+                    '/def/',
                     '/abc/'
                 ]);
                 var sectionUrls = site.index.sections[0].files.map(function(file) {
@@ -450,10 +453,11 @@ describe('gulp-ssg()', function() {
             });
 
             stream.write(home);
-            stream.write(page1);
             stream.write(page2);
-            stream.write(sectionIndex);
+            stream.write(page1);
             stream.write(sectionPage1);
+            stream.write(page3);
+            stream.write(sectionIndex);
             stream.write(sectionPage2);
             stream.end();
         });
