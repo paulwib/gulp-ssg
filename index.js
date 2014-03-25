@@ -50,12 +50,14 @@ module.exports = function(site, options) {
         if (file.isStream()) {
             return this.emit('error', new PluginError('gulp-ssg',  'Streaming not supported'));
         }
-        var isIndex = path.basename(file.relative, path.extname(file.path)) === 'index',
+        var basename = path.basename(file.relative, path.extname(file.path)),
+            isIndex = basename === 'index',
             originalDir = rename(file),
             isHome = isIndex && originalDir === '.',
             fileUrl = isHome ? options.baseUrl + '/' : url(file, options.baseUrl);
 
         file[options.property] = _.extend({
+            name: basename,
             isIndex: isIndex,
             isHome: isHome,
             url: fileUrl,

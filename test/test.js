@@ -86,6 +86,29 @@ describe('gulp-ssg()', function() {
             stream.end();
         });
 
+        it('should assign a name unique within the section', function(done) {
+            var site = {};
+            var stream = ssg(site);
+            var home = getMarkdownFile('test/index.md', 'home');
+            var page = getMarkdownFile('test/hello.md', 'page');
+            var sectionIndex = getMarkdownFile('test/foo/index.md', 'index');
+            var sectionPage = getMarkdownFile('test/foo/bar.md', 'section page');
+
+            stream.on('end', function() {
+                expect(home.meta.name).to.equal('index');
+                expect(page.meta.name).to.equal('hello');
+                expect(sectionIndex.meta.name).to.equal('index');
+                expect(sectionPage.meta.name).to.equal('bar');
+                done();
+            });
+
+            stream.write(home);
+            stream.write(page);
+            stream.write(sectionIndex);
+            stream.write(sectionPage);
+            stream.end();
+        });
+
         it('should not override properties assigned to the site', function(done) {
             var site = { title: 'My Site' };
             var stream = ssg(site);
