@@ -411,7 +411,7 @@ describe('gulp-ssg()', function() {
             stream.end();
         });
 
-        it('should be possible to sort by assigned property', function(done) {
+        it('should be possible to sort pages by assigned property', function(done) {
             var site = {};
             var options = {
                 sort: 'order'
@@ -459,6 +459,88 @@ describe('gulp-ssg()', function() {
             stream.write(page3);
             stream.write(sectionIndex);
             stream.write(sectionPage2);
+            stream.end();
+        });
+
+        it('should be possible to sort indexes in section (but indexes always come first in their own section)', function(done) {
+            var site = {};
+            var options = {
+                sort: 'order'
+            };
+            var stream = ssg(site, options);
+            var home = getMarkdownFile('test/index.md', 'home');
+            var section1Index = getMarkdownFile('test/foo/index.md', 'section index');
+            var section1Page1 = getMarkdownFile('test/foo/10-hello.md', 'section page');
+            var section1Page2 = getMarkdownFile('test/foo/05-goodbye.md', 'section page');
+            var section2Index = getMarkdownFile('test/bar/index.md', 'section index');
+            var section2Page1 = getMarkdownFile('test/bar/10-hello.md', 'section page');
+            var section2Page2 = getMarkdownFile('test/bar/05-goodbye.md', 'section page');
+            var section3Index = getMarkdownFile('test/xyz/index.md', 'section index');
+            var section3Page1 = getMarkdownFile('test/xyz/10-hello.md', 'section page');
+            var section3Page2 = getMarkdownFile('test/xyz/05-goodbye.md', 'section page');
+
+            section1Index.meta = { order: 5 };
+            section1Page1.meta = { order: 1 };
+            section1Page2.meta = { order: 2 };
+
+            section2Index.meta = { order: 3 };
+            section2Page1.meta = { order: 1 };
+            section2Page2.meta = { order: 2 };
+
+            section3Index.meta = { order: 1 };
+            section3Page1.meta = { order: 1 };
+            section3Page2.meta = { order: 2 };
+
+            stream.on('end', function() {
+                var sectionUrls = site.index.sections.map(function(section) {
+                    return section.url;
+                });
+                expect(sectionUrls).to.deep.equal([
+                    '/xyz/',
+                    '/bar/',
+                    '/foo/'
+                ]);
+
+                var section1Urls = site.index.sections[0].files.map(function(file) {
+                    return file.meta.url;
+                });
+                expect(section1Urls).to.deep.equal([
+                    '/xyz/',
+                    '/xyz/10-hello/',
+                    '/xyz/05-goodbye/'
+                ]);
+
+                var section2Urls = site.index.sections[1].files.map(function(file) {
+                    return file.meta.url;
+                });
+                expect(section2Urls).to.deep.equal([
+                    '/bar/',
+                    '/bar/10-hello/',
+                    '/bar/05-goodbye/'
+                ]);
+
+                var section3Urls = site.index.sections[2].files.map(function(file) {
+                    return file.meta.url;
+                });
+                expect(section3Urls).to.deep.equal([
+                    '/foo/',
+                    '/foo/10-hello/',
+                    '/foo/05-goodbye/'
+                ]);
+
+                done();
+            });
+
+            stream.write(home);
+            stream.write(section1Index);
+            stream.write(section1Page1);
+            stream.write(section1Page2);
+            stream.write(section2Index);
+            stream.write(section2Page1);
+            stream.write(section2Page2);
+            stream.write(section3Index);
+            stream.write(section3Page1);
+            stream.write(section3Page2);
             stream.end();
         });
 
