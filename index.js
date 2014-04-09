@@ -241,7 +241,7 @@ module.exports = function(site, options) {
                 '/index.html';            
         }
         else {
-            file.path = file.base + dirname + '/' + file.relative;
+            file.path = file.base + dirname + '/' + basename + path.extname(file.relative); 
         }
 
 
