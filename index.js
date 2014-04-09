@@ -24,7 +24,8 @@ module.exports = function(site, options) {
         baseUrl: '',
         sort: 'url',
         property: 'meta',
-        sectionProperties: []
+        sectionProperties: [],
+        prettyUrls: true
     }, options || {});
 
     var buffer = [];
@@ -233,9 +234,16 @@ module.exports = function(site, options) {
         var dirname = path.dirname(file.relative),
             basename = path.basename(file.relative, path.extname(file.relative));
 
-        file.path = file.base +
-            (basename !== 'index' ? dirname + '/' + basename : dirname) +
-            '/index.html';
+        if (options.prettyUrls)
+        {
+            file.path = file.base +
+                (basename !== 'index' ? dirname + '/' + basename : dirname) +
+                '/index.html';            
+        }
+        else {
+            file.path = file.base + dirname + '/' + file.relative;
+        }
+
 
         return dirname;
     }
