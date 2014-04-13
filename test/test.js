@@ -45,13 +45,13 @@ describe('gulp-ssg()', function() {
         // Zach ----------------------------------------------------
 
         it('in prettyUrls false mode, should not rename paths', function(done) {
-            // var stream = ssg({});
             var site = {};
-            var options = {prettyUrls:false}
+            var options = {prettyUrls: '.md'}
             var stream = ssg(site, options);
 
             var file = getMarkdownFile('test/hello.png', 'test');
             var pic = getMarkdownFile('test/sub/f/picture.png', 'test');
+            var actualMd = getMarkdownFile('test/text.md', 'test');
 
             stream.on('end', function() {
                 var newFilePath = path.resolve(file.path);
@@ -66,10 +66,18 @@ describe('gulp-ssg()', function() {
                 pic.relative.should.equal('sub/f/picture.png');
                 Buffer.isBuffer(pic.contents).should.equal(true);
 
+                var mdPath = path.resolve(actualMd.path);
+                var expectedMdPath = path.resolve('test/text/index.html');
+                mdPath.should.equal(expectedMdPath);
+                actualMd.relative.should.equal('text/index.html');
+                Buffer.isBuffer(actualMd.contents).should.equal(true);
+
                 done();
             });
 
             stream.write(file);
+            stream.write(pic);
+            stream.write(actualMd);
             stream.end();
         });
 

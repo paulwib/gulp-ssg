@@ -234,7 +234,7 @@ module.exports = function(site, options) {
         var dirname = path.dirname(file.relative),
             basename = path.basename(file.relative, path.extname(file.relative));
 
-        if (options.prettyUrls)
+        if (options.prettyUrls === true || options.prettyUrls === path.extname(file.relative))
         {
             file.path = file.base +
                 (basename !== 'index' ? dirname + '/' + basename : dirname) +
