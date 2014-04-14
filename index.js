@@ -62,7 +62,7 @@ module.exports = function(site, options) {
             isIndex: isIndex,
             isHome: isHome,
             url: fileUrl,
-            sectionUrl: sectionUrl(fileUrl, isIndex)
+            sectionUrl: sectionUrl(fileUrl, isIndex, file) // TODO
         }, file[options.property] || {});
 
         buffer.push(file);
@@ -209,7 +209,8 @@ module.exports = function(site, options) {
      * @param object index The content tree
      */
     function addSectionToFiles(index) {
-        if (!index.files.length) {
+        
+        if (!index.files) {
             return;
         }
         index.files.forEach(function(file) {
@@ -265,8 +266,22 @@ module.exports = function(site, options) {
      * @param object file
      * @return string url
      */
-    function sectionUrl(url, isIndex) {
-        return isIndex ? url : url.split('/').slice(0, -2).join('/') + '/';
+    function sectionUrl(url, isIndex, file) {
+        var basename = path.basename(file.relative, path.extname(file.relative));
+        var result = isIndex ? url : url.split('/').slice(0, -2).join('/') + '/';
+
+        if (basename !== 'index') // which will only happen when in non prettyUrl mode
+        {
+            if(url === '/./'){
+                result = '/' 
+            }
+            else {
+                result = url.split('/').slice(0, -1).join('/') + '/';
+            }
+        }
+        return result
+
+
     }
 
 };
