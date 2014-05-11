@@ -42,8 +42,6 @@ describe('gulp-ssg()', function() {
             stream.end();
         });
 
-        // Zach ----------------------------------------------------
-
         it('in prettyUrls false mode, should not rename paths', function(done) {
             var site = {};
             var options = {prettyUrls: '.md'}

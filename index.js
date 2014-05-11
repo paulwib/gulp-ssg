@@ -62,7 +62,7 @@ module.exports = function(site, options) {
             isIndex: isIndex,
             isHome: isHome,
             url: fileUrl,
-            sectionUrl: sectionUrl(fileUrl, isIndex, file) // TODO
+            sectionUrl: sectionUrl(fileUrl, isIndex, file)
         }, file[options.property] || {});
 
         buffer.push(file);
