@@ -257,7 +257,8 @@ module.exports = function(site, options) {
      * @return string url
      */
     function url(file, baseUrl) {
-        return baseUrl + '/' + path.dirname(file.relative).replace(/^\.\//, '') + '/';
+        var dirname = path.dirname(file.relative).replace(/\\/g, '/');
+        return baseUrl + '/' + dirname.replace(/^\.\//, '') + '/';
     }
 
     /**

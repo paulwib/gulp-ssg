@@ -90,7 +90,7 @@ describe('gulp-ssg()', function() {
                 var newFilePath = path.resolve(file.path);
                 var expectedFilePath = path.resolve('test/hello/index.html');
                 newFilePath.should.equal(expectedFilePath);
-                file.relative.should.equal('hello/index.html');
+                file.relative.should.equal(path.normalize('hello/index.html'));
                 Buffer.isBuffer(file.contents).should.equal(true);
                 done();
             });
