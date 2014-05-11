@@ -20,6 +20,7 @@ var path = require('path');
  * @return stream
  */
 module.exports = function(site, options) {
+    site = site || {};
     options = _.extend({
         baseUrl: '',
         sort: 'url',
