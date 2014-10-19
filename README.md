@@ -1,3 +1,6 @@
+gulp-ssg [![NPM version][npm-image]][npm-url] [![Dependency Status][depstat-image]][depstat-url]
+===
+
 A [gulp][] plugin to generate a static site.
 
 ## Usage
@@ -168,3 +171,9 @@ gulp.task('watch', function() {
 
 
 [gulp]:http://gulpjs.com
+
+[npm-url]: https://npmjs.org/package/gulp-ssg
+[npm-image]: http://img.shields.io/npm/v/gulp-ssg.svg?style=flat
+
+[depstat-url]: https://david-dm.org/paulwib/gulp-ssg
+[depstat-image]: https://david-dm.org/paulwib/gulp-ssg.svg?style=flat
