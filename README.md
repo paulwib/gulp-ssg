@@ -1,4 +1,4 @@
-gulp-ssg [![NPM version][npm-image]][npm-url] [![Dependency Status][depstat-image]][depstat-url]
+gulp-ssg [![NPM version][npm-image]][npm-url] [![Dependency Status][depstat-image]][depstat-url] [![Build Status][travis-image]][travis-url]
 ===
 
 A [gulp][] plugin to generate a static site.
@@ -177,3 +177,6 @@ gulp.task('watch', function() {
 
 [depstat-url]: https://david-dm.org/paulwib/gulp-ssg
 [depstat-image]: https://david-dm.org/paulwib/gulp-ssg.svg?style=flat
+
+[travis-image]: https://travis-ci.org/paulwib/gulp-ssg.svg
+[travis-url]: https://travis-ci.org/paulwib/gulp-ssg
