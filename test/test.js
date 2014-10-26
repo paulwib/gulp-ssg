@@ -192,6 +192,32 @@ describe('gulp-ssg()', function() {
             stream.end();
         });
 
+        it('should remove a trailing slash from the specified base url', function(done) {
+            var site = {};
+            var options = {
+                baseUrl: '/path/to/site/'
+            };
+            var stream = ssg(site, options);
+            var home = getMarkdownFile('test/index.md', 'home');
+            var page = getMarkdownFile('test/hello.md', 'page');
+            var sectionIndex = getMarkdownFile('test/foo/index.md', 'section index');
+            var sectionPage = getMarkdownFile('test/foo/bar.md', 'section page');
+
+            stream.on('end', function() {
+                expect(home.meta.url).to.equal('/path/to/site/');
+                expect(page.meta.url).to.equal('/path/to/site/hello/');
+                expect(sectionIndex.meta.url).to.equal('/path/to/site/foo/');
+                expect(sectionPage.meta.url).to.equal('/path/to/site/foo/bar/');
+                done();
+            });
+
+            stream.write(home);
+            stream.write(page);
+            stream.write(sectionIndex);
+            stream.write(sectionPage);
+            stream.end();
+        });
+
         it('should generate an index tree of sections', function(done) {
             var site = {};
             var stream = ssg(site);

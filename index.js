@@ -28,6 +28,11 @@ module.exports = function(site, options) {
         sectionProperties: []
     }, options || {});
 
+    // remove trailing slash from baseUrl
+    if(options.baseUrl && options.baseUrl.length > 1 && options.baseUrl.substr(-1) === '/') {
+        options.baseUrl = options.baseUrl.substr(0, options.baseUrl.length - 1);
+    }
+
     var buffer = [];
 
     return through(bufferContents, endStream);
