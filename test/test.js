@@ -1,14 +1,11 @@
 'use strict';
 /* globals describe, it */
 var ssg = require('../');
-var gulp = require('gulp');
 var expect = require('chai').expect;
 var should = require('should');
-var es = require('event-stream');
 var fs = require('fs');
 var path = require('path');
-var gutil = require('gulp-util');
-var File = gutil.File;
+var File = require('gulp-util').File;
 var Buffer = require('buffer').Buffer;
 
 
