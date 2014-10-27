@@ -178,5 +178,5 @@ gulp.task('watch', function() {
 [depstat-url]: https://david-dm.org/paulwib/gulp-ssg
 [depstat-image]: https://david-dm.org/paulwib/gulp-ssg.svg?style=flat
 
-[travis-image]: https://travis-ci.org/paulwib/gulp-ssg.svg
+[travis-image]: http://img.shields.io/travis/paulwib/gulp-ssg/master.svg?style=flat
 [travis-url]: https://travis-ci.org/paulwib/gulp-ssg
