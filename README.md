@@ -7,13 +7,13 @@ A [gulp][] plugin to generate a static site.
 
 ```javascript
 var ssg = require('gulp-ssg');
-var site = {
+var website = {
     title: 'My site'
 };
 
 gulp.task('html', function() {
     return gulp.src('content/**/*.md')
-        .pipe(ssg(site))
+        .pipe(ssg(website))
         .pipe(gulp.dest('public/'));
 });
 ```
@@ -33,7 +33,7 @@ It will also add properties to a `data` object of each file:
 * `file.data.sectionUrl`
 * `file.data.section`
 
-Finally, it will add an `index` property to the passed in `site` object which is a tree of all the content.
+Finally, it will add an `index` property to the passed in `website` object which is a tree of all the content.
 The above example would look like:
 
 ```javascript
@@ -59,69 +59,51 @@ As implied above each file has a reference back to it's section in this tree.
 It gets more interesting when combined with other pipes. For example:
 
 ```javascript
-var ssg = require('gulp-ssg');
-var frontmatter = require('gulp-front-matter');
-var marked = require('gulp-marked');
-var site = {
-    title: 'My site'
-};
-
-gulp.task('html', function() {
-    return gulp.src('content/**/*.md')
-        .pipe(frontmatter({
-            property: 'data'
-        }))
-        .pipe(marked())
-        .pipe(ssg(site))
-        .pipe(gulp.dest('public/'));
-});
-```
-
-This will extract any YAML front-matter, convert the content of each file from markdown to HTML, then run the ssg. The data extracted from the front-matter will be combined with the data extracted by the ssg in the `data` property.
-
-## Templates
-
-A common requirement of static sites is to pass the content through some template engine. There is nothing built into `gulp-ssg` to do this, but it's very easy to add with another pipe.
-
-After the step above you will have created a bunch of HTML files. Now you can run them through a templating pipe. All the files are processed before the next pipe, so the template will have access to the complete site index for things like generating global navigation, or a list of sub-pages in the current section.
-
-So to add this to the above example:
-
-```javascript
-var ssg = require('gulp-ssg');
-var frontmatter = require('gulp-front-matter');
-var marked = require('gulp-marked');
+var ssg = require('../');
+var gulp = require('gulp');
+var data = require('gulp-data');
+var fm = require('front-matter');
+var marked = require('marked');
 var fs = require('fs');
 var es = require('event-stream');
-var mustache = require('mustache');
-var site = {
+var hogan = require('hogan.js');
+
+var website = {
     title: 'My site'
 };
 
 gulp.task('html', function() {
 
-    var template = String(fs.readFileSync('templates/page.html'));
+    // Compile a template for rendering each page
+    var template = hogan.compile(String(fs.readFileSync('templates/template.html')));
 
     return gulp.src('content/**/*.md')
-        .pipe(frontmatter({
-            property: 'data'
+
+        // Extract YAML, convert content to markdown via gulp-data
+        .pipe(data(function(file) {
+            var content = fm(String(file.contents));
+            file.contents = new Buffer(marked(content.body));
+            return content.attributes;
         }))
-        .pipe(marked())
-        .pipe(ssg(site))
+
+        // Run through gulp-ssg
+        .pipe(ssg(website))
+
+        // Run each file through a template, adding the website
+        // Note gulp-ssg buffers all files so website.index will be complete
         .pipe(es.map(function(file, cb) {
-            var html = mustache.render(template, {
-                page: file.data,
-                site: site,
-                content: String(file.contents)
-            });
-            file.contents = new Buffer(html);
+            file.website = website;
+            file.contents = new Buffer(template.render(file));
             cb(null, file);
         }))
-        .pipe(gulp.dest('public/'));
+
+        // Output to build directory
+        .pipe(gulp.dest('build/'));
 });
+
 ```
 
-This uses `es.map` to modify the stream directly, but if you have a common way of rendering many sites it might be worth writing a little plug-in with a bit more error handling etc.
+This plug-in follows the [gulp-data][] convention of using `file.data`, so anything returned from a `gulp-data` pipe will be merged with the properteis above.
 
 ## Caveats
 
@@ -151,7 +133,7 @@ var http = require('http'),
 
 gulp.task('watch', function() {
 	http.createServer(
-        ecstatic({ root: __dirname + '/public'  })
+        ecstatic({ root: __dirname + '/build'  })
     ).listen(8745);
     console.log('Preview at http://localhost:8745');
 

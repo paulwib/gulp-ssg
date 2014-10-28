@@ -22,8 +22,13 @@
     "through": "~2.3.4"
   },
   "devDependencies": {
-    "gulp": "~3.8.9",
     "chai": "~1.9.0",
+    "event-stream": "^3.1.7",
+    "front-matter": "^0.2.0",
+    "gulp": "~3.8.9",
+    "gulp-data": "^1.0.2",
+    "hogan.js": "^3.0.2",
+    "marked": "^0.3.2",
     "mocha": "~2.0.1",
     "should": "~4.1.0"
   },
