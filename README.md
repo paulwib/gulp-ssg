@@ -32,9 +32,9 @@ It will also add properties to a `data` object of each file:
 * `file.data.isIndex`
 * `file.data.sectionUrl`
 * `file.data.section`
+* `file.data.website`
 
-Finally, it will add an `index` property to the passed in `website` object which is a tree of all the content.
-The above example would look like:
+The `file.data.website` is the original passed in `website` object with an additional `index` property that represents a full tree map of the site, which looks like:
 
 ```javascript
 
@@ -52,7 +52,8 @@ The above example would look like:
     }
 ```
 
-As implied above each file has a reference back to it's section in this tree.
+This can be used for things like generating global navigation. Also each file has a reference back to it's section in the tree, so it's possible to generate sub-navigation too with `file.data.section.files`.
+
 
 ## Example
 
@@ -86,13 +87,11 @@ gulp.task('html', function() {
             return content.attributes;
         }))
 
-        // Run through gulp-ssg
-        .pipe(ssg(website))
+        // Run through gulp-ssg, copy title from YAML to section
+        .pipe(ssg(website, { sectionProperties: ['title'] }))
 
-        // Run each file through a template, adding the website
-        // Note gulp-ssg buffers all files so website.index will be complete
+        // Run each file through a template
         .pipe(es.map(function(file, cb) {
-            file.website = website;
             file.contents = new Buffer(template.render(file));
             cb(null, file);
         }))
@@ -103,7 +102,7 @@ gulp.task('html', function() {
 
 ```
 
-This plug-in follows the [gulp-data][] convention of using `file.data`, so anything returned from a `gulp-data` pipe will be merged with the properteis above.
+This plug-in follows the [gulp-data][] convention of using `file.data`, so anything returned from a `gulp-data` pipe will be merged with the properties above.
 
 ## Caveats
 

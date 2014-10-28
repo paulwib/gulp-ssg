@@ -27,7 +27,7 @@ module.exports = function(site, options) {
     }, options || {});
 
     // remove trailing slash from baseUrl
-    if(options.baseUrl && options.baseUrl.length > 1 && options.baseUrl.substr(-1) === '/') {
+    if (options.baseUrl && options.baseUrl.length > 1 && options.baseUrl.substr(-1) === '/') {
         options.baseUrl = options.baseUrl.substr(0, options.baseUrl.length - 1);
     }
 
@@ -59,6 +59,7 @@ module.exports = function(site, options) {
             fileUrl = isHome ? options.baseUrl + '/' : url(file, options.baseUrl);
 
         file.data = _.extend({
+            website: site,
             name: basename,
             isIndex: isIndex,
             isHome: isHome,

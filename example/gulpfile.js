@@ -27,12 +27,11 @@ gulp.task('html', function() {
             return content.attributes;
         }))
 
-        // Run through gulp-ssg
-        .pipe(ssg(website))
+        // Run through gulp-ssg, copy title from YAML to section
+        .pipe(ssg(website, { sectionProperties: ['title'] }))
 
-        // Run each file through a template, adding the website
+        // Run each file through a template
         .pipe(es.map(function(file, cb) {
-            file.website = website;
             file.contents = new Buffer(template.render(file));
             cb(null, file);
         }))
