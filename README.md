@@ -44,18 +44,18 @@ It will add properties to each files `data` property:
 The `file.data.website.map` represents a tree map of all files in the website. This can be used for things like generating global navigation, or making a single-page website. It looks like:
 
 ```javascript
-    {
-        name: 'root',
-        url: '/',
-        files: [<index.html>, <foo/index.html> ] // All files in this section
-        sections: [
-            {
-                name: 'bar',
-                url: '/bar/',
-                files: [<bar/index.html>, <bar/foo/index.html>]
-            }
-        ]
-    }
+{
+    name: 'root',
+    url: '/',
+    files: [<index.html>, <foo/index.html> ] // All files in this section
+    sections: [
+        {
+            name: 'bar',
+            url: '/bar/',
+            files: [<bar/index.html>, <bar/foo/index.html>]
+        }
+    ]
+}
 ```
 Also each file has a reference back to it's section in the tree, so it's possible to generate sub-navigation too with `file.data.section.files`.
 
