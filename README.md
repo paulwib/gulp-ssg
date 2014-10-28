@@ -126,24 +126,6 @@ A property to sort pages by, defaults to `url`. For example, this could be a pro
 
 A list of properties to extract from index pages to add to the section, defaults to an empty list. For example, you could add a `sectionTitle` to front-matter in your `index.md` files, then use this it for link text in your global navigation.
 
-## Previewing Your Website
-
-Add a `watch` task to run a server for previewing your website:
-
-```javascript
-var http = require('http'),
-	ecstatic = require('ecstatic');
-
-gulp.task('watch', function() {
-	http.createServer(
-        ecstatic({ root: __dirname + '/build'  })
-    ).listen(8745);
-    console.log('Preview at http://localhost:8745');
-
-    gulp.watch('content/', ['html']);
-    gulp.watch('templates/', ['default']);
-});
-```
 
 [gulp]:http://gulpjs.com
 [gulp-data]:https://github.com/colynb/gulp-data
