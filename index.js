@@ -9,17 +9,16 @@ var _ = require('lodash');
 var path = require('path');
 
 /**
- * Convert text files to a website with nice urls, extra file.data and
- * provide a tree style index of the content.
+ * Convert text files to a website with nice urls, extra file.data and a website.map tree of content
  *
- * @param object site                       The site to attach the indexes to
- * @param array options.baseUrl             The base url of the final site
+ * @param object website                    An object to attach the map to, reference added to each file
+ * @param array options.baseUrl             The base url of the final website
  * @param array options.sort                The property to sort by
  * @param array options.sectionProperties   List of properties to copy from index file to section
  * @return stream
  */
-module.exports = function(site, options) {
-    site = site || {};
+module.exports = function(website, options) {
+    website = website || {};
     options = _.extend({
         baseUrl: '',
         sort: 'url',
@@ -59,7 +58,7 @@ module.exports = function(site, options) {
             fileUrl = isHome ? options.baseUrl + '/' : url(file, options.baseUrl);
 
         file.data = _.extend({
-            website: site,
+            website: website,
             name: basename,
             isIndex: isIndex,
             isHome: isHome,
@@ -71,8 +70,8 @@ module.exports = function(site, options) {
     }
 
     /**
-     * At the end of the stream build the site index, sort, then emit the file data.
-     * This ensures the full index is built before the next pipe sees the file.
+     * At the end of the stream build the website map, sort, then emit the file data.
+     * This ensures the full map is built before the next pipe sees the file.
      */
     function endStream() {
         if (buffer.length === 0) {
@@ -97,8 +96,8 @@ module.exports = function(site, options) {
             });
         }
 
-        site.index = treeify(options.baseUrl, buffer);
-        addSectionToFiles(site.index);
+        website.map = treeify(options.baseUrl, buffer);
+        addSectionToFiles(website.map);
 
         buffer.forEach(function(file) {
             this.emit('data', file);
@@ -205,20 +204,20 @@ module.exports = function(site, options) {
     /**
      * Give each file data a reference back to it's section
      *
-     * @param object index The content tree
+     * @param object map The website map
      */
-    function addSectionToFiles(index) {
-        if (!index.files.length) {
+    function addSectionToFiles(map) {
+        if (!map.files.length) {
             return;
         }
-        index.files.forEach(function(file) {
-            file.data.section = index;
-            if (!index.sections.length) {
+        map.files.forEach(function(file) {
+            file.data.section = map;
+            if (!map.sections.length) {
                 return;
             }
         });
         // Recurse over nested sections
-        index.sections.forEach(function(section) {
+        map.sections.forEach(function(section) {
             addSectionToFiles(section);
         });
     }

@@ -33,8 +33,9 @@ It will also add properties to a `data` object of each file:
 * `file.data.sectionUrl`
 * `file.data.section`
 * `file.data.website`
+* `file.data.website.map`
 
-The `file.data.website` is the original passed in `website` object with an additional `index` property that represents a full tree map of the site, which looks like:
+The `file.data.website` is the original passed in `website` object with an additional `map` property that represents a full tree map of the site, which looks like:
 
 ```javascript
 
@@ -57,7 +58,7 @@ This can be used for things like generating global navigation. Also each file ha
 
 ## Example
 
-It gets more interesting when combined with other pipes. For example:
+So how can this be used? It gets more interesting when combined with other pipes. For example:
 
 ```javascript
 var ssg = require('../');
@@ -80,7 +81,7 @@ gulp.task('html', function() {
 
     return gulp.src('content/**/*.md')
 
-        // Extract YAML, convert content to markdown via gulp-data
+        // Extract YAML front-matter, convert content to markdown via gulp-data
         .pipe(data(function(file) {
             var content = fm(String(file.contents));
             file.contents = new Buffer(marked(content.body));
@@ -116,7 +117,7 @@ The base URL of the site, defaults to '/'. This should be the path to where your
 
 ### sort `string`
 
-A property to sort pages by in the index, defaults to `url`. For example, this could be a property like `order` extracted from the YAML front-matter, giving content editors full control over the order of pages.
+A property to sort pages by, defaults to `url`. For example, this could be a property like `order` extracted from the YAML front-matter, giving content editors full control over the order of pages.
 
 ### sectionProperties `array`
 
