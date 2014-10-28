@@ -3,6 +3,12 @@ gulp-ssg [![NPM version][npm-image]][npm-url] [![Dependency Status][depstat-imag
 
 A [gulp][] plugin to generate a static site.
 
+## Installation
+
+```bash
+$ npm install gulp-ssg
+```
+
 ## Usage
 
 ```javascript
