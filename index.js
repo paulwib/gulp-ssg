@@ -35,11 +35,7 @@ module.exports = function(website, options) {
     return through(bufferContents, endStream);
 
     /**
-     * Rename each file and add data properties:
-     *  - isHome
-     *  - isIndex
-     *  - url
-     *  - sectionUrl
+     * Rename each file and add properties to `data`
      *
      * @param object file
      */

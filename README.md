@@ -25,20 +25,19 @@ This will rename the files so they have pretty URLs e.g.
     content/bar/index.md    -> public/bar/index.html
     content/bar/hello.md    -> public/bar/hello/index.html
 
-It will also add properties to a `data` object of each file:
+It will add properties to each files `data` property:
 
-* `file.data.url`
-* `file.data.isHome`
-* `file.data.isIndex`
-* `file.data.sectionUrl`
-* `file.data.section`
-* `file.data.website`
-* `file.data.website.map`
+* `file.data.url` - `string` The full page URL
+* `file.data.isHome` - `boolean` Is it the root index page?
+* `file.data.isIndex` - `boolean` Is it a directory index page?
+* `file.data.sectionUrl` - `string` The URL of the section this page is in
+* `file.data.section` - `object` A pointer to the section in the website map
+* `file.data.website` - `object` The original passed in website object
+* `file.data.website.map` - `object` A map of all the files
 
-The `file.data.website` is the original passed in `website` object with an additional `map` property that represents a full tree map of the site, which looks like:
+The `file.data.website.map` represents a tree map of all files in the website. This can be used for things like generating global navigation, or making a single-page website. It looks like:
 
 ```javascript
-
     {
         name: 'root',
         url: '/',
@@ -46,15 +45,13 @@ The `file.data.website` is the original passed in `website` object with an addit
         sections: [
             {
                 name: 'bar',
-                url: 'bar',
+                url: '/bar/',
                 files: [<bar/index.html>, <bar/foo/index.html>]
             }
         ]
     }
 ```
-
-This can be used for things like generating global navigation. Also each file has a reference back to it's section in the tree, so it's possible to generate sub-navigation too with `file.data.section.files`.
-
+Also each file has a reference back to it's section in the tree, so it's possible to generate sub-navigation too with `file.data.section.files`.
 
 ## Example
 
