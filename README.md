@@ -25,13 +25,13 @@ This will rename the files so they have pretty URLs e.g.
     content/bar/index.md    -> public/bar/index.html
     content/bar/hello.md    -> public/bar/hello/index.html
 
-It will also add properties to a `meta` object of each file:
+It will also add properties to a `data` object of each file:
 
-* `file.meta.url`
-* `file.meta.isHome`
-* `file.meta.isIndex`
-* `file.meta.sectionUrl`
-* `file.meta.section`
+* `file.data.url`
+* `file.data.isHome`
+* `file.data.isIndex`
+* `file.data.sectionUrl`
+* `file.data.section`
 
 Finally, it will add an `index` property to the passed in `site` object which is a tree of all the content.
 The above example would look like:
@@ -69,17 +69,15 @@ var site = {
 gulp.task('html', function() {
     return gulp.src('content/**/*.md')
         .pipe(frontmatter({
-            property: 'meta'
+            property: 'data'
         }))
         .pipe(marked())
-        .pipe(ssg(site, {
-            property: 'meta'
-        }))
+        .pipe(ssg(site))
         .pipe(gulp.dest('public/'));
 });
 ```
 
-This will extract any YAML front-matter, convert the content of each file from markdown to HTML, then run the ssg. The data extracted from the front-matter will be combined with the data extracted by the ssg in the `meta` property.
+This will extract any YAML front-matter, convert the content of each file from markdown to HTML, then run the ssg. The data extracted from the front-matter will be combined with the data extracted by the ssg in the `data` property.
 
 ## Templates
 
@@ -106,15 +104,13 @@ gulp.task('html', function() {
 
     return gulp.src('content/**/*.md')
         .pipe(frontmatter({
-            property: 'meta'
+            property: 'data'
         }))
         .pipe(marked())
-        .pipe(ssg(site, {
-            property: 'meta'
-        }))
+        .pipe(ssg(site))
         .pipe(es.map(function(file, cb) {
             var html = mustache.render(template, {
-                page: file.meta,
+                page: file.data,
                 site: site,
                 content: String(file.contents)
             });
@@ -141,10 +137,6 @@ The base URL of the site, defaults to '/'. This should be the path to where your
 
 A property to sort pages by in the index, defaults to `url`. For example, this could be a property like `order` extracted from the YAML front-matter, giving content editors full control over the order of pages.
 
-### property `string`
-
-The name of the property to attach data to, defaults to `meta`.
-
 ### sectionProperties `array`
 
 A list of properties to extract from index pages to add to the section, defaults to an empty list. For example, you could add a `sectionTitle` to front-matter in your `index.md` files, then use this it for link text in your global navigation.
@@ -167,8 +159,6 @@ gulp.task('watch', function() {
     gulp.watch('templates/', ['default']);
 });
 ```
-
-
 
 [gulp]:http://gulpjs.com
 

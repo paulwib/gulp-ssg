@@ -8,7 +8,6 @@ var path = require('path');
 var File = require('gulp-util').File;
 var Buffer = require('buffer').Buffer;
 
-
 function getMarkdownFile(path, content) {
     return new File({
         cwd: '',
@@ -65,14 +64,14 @@ describe('gulp-ssg()', function() {
             var sectionPage = getMarkdownFile('test/foo/bar.md', 'section page');
 
             stream.on('end', function() {
-                expect(home.meta.isHome).to.be.true;
-                expect(home.meta.isIndex).to.be.true;
-                expect(page.meta.isHome).to.be.false;
-                expect(page.meta.isIndex).to.be.false;
-                expect(sectionIndex.meta.isHome).to.be.false;
-                expect(sectionIndex.meta.isIndex).to.be.true;
-                expect(sectionPage.meta.isHome).to.be.false;
-                expect(sectionPage.meta.isIndex).to.be.false;
+                expect(home.data.isHome).to.be.true;
+                expect(home.data.isIndex).to.be.true;
+                expect(page.data.isHome).to.be.false;
+                expect(page.data.isIndex).to.be.false;
+                expect(sectionIndex.data.isHome).to.be.false;
+                expect(sectionIndex.data.isIndex).to.be.true;
+                expect(sectionPage.data.isHome).to.be.false;
+                expect(sectionPage.data.isIndex).to.be.false;
                 done();
             });
 
@@ -92,10 +91,10 @@ describe('gulp-ssg()', function() {
             var sectionPage = getMarkdownFile('test/foo/bar.md', 'section page');
 
             stream.on('end', function() {
-                expect(home.meta.name).to.equal('index');
-                expect(page.meta.name).to.equal('hello');
-                expect(sectionIndex.meta.name).to.equal('index');
-                expect(sectionPage.meta.name).to.equal('bar');
+                expect(home.data.name).to.equal('index');
+                expect(page.data.name).to.equal('hello');
+                expect(sectionIndex.data.name).to.equal('index');
+                expect(sectionPage.data.name).to.equal('bar');
                 done();
             });
 
@@ -129,10 +128,10 @@ describe('gulp-ssg()', function() {
             var sectionPage = getMarkdownFile('test/foo/bar.md', 'section page');
 
             stream.on('end', function() {
-                expect(home.meta.url).to.equal('/');
-                expect(page.meta.url).to.equal('/hello/');
-                expect(sectionIndex.meta.url).to.equal('/foo/');
-                expect(sectionPage.meta.url).to.equal('/foo/bar/');
+                expect(home.data.url).to.equal('/');
+                expect(page.data.url).to.equal('/hello/');
+                expect(sectionIndex.data.url).to.equal('/foo/');
+                expect(sectionPage.data.url).to.equal('/foo/bar/');
                 done();
             });
 
@@ -152,10 +151,10 @@ describe('gulp-ssg()', function() {
             var sectionPage = getMarkdownFile('test/foo/bar.md', 'sectionPage');
 
             stream.on('end', function() {
-                expect(home.meta.sectionUrl).to.equal('/');
-                expect(page.meta.sectionUrl).to.equal('/');
-                expect(sectionIndex.meta.sectionUrl).to.equal('/foo/');
-                expect(sectionPage.meta.sectionUrl).to.equal('/foo/');
+                expect(home.data.sectionUrl).to.equal('/');
+                expect(page.data.sectionUrl).to.equal('/');
+                expect(sectionIndex.data.sectionUrl).to.equal('/foo/');
+                expect(sectionPage.data.sectionUrl).to.equal('/foo/');
                 done();
             });
 
@@ -178,10 +177,10 @@ describe('gulp-ssg()', function() {
             var sectionPage = getMarkdownFile('test/foo/bar.md', 'section page');
 
             stream.on('end', function() {
-                expect(home.meta.url).to.equal('/path/to/site/');
-                expect(page.meta.url).to.equal('/path/to/site/hello/');
-                expect(sectionIndex.meta.url).to.equal('/path/to/site/foo/');
-                expect(sectionPage.meta.url).to.equal('/path/to/site/foo/bar/');
+                expect(home.data.url).to.equal('/path/to/site/');
+                expect(page.data.url).to.equal('/path/to/site/hello/');
+                expect(sectionIndex.data.url).to.equal('/path/to/site/foo/');
+                expect(sectionPage.data.url).to.equal('/path/to/site/foo/bar/');
                 done();
             });
 
@@ -204,10 +203,10 @@ describe('gulp-ssg()', function() {
             var sectionPage = getMarkdownFile('test/foo/bar.md', 'section page');
 
             stream.on('end', function() {
-                expect(home.meta.url).to.equal('/path/to/site/');
-                expect(page.meta.url).to.equal('/path/to/site/hello/');
-                expect(sectionIndex.meta.url).to.equal('/path/to/site/foo/');
-                expect(sectionPage.meta.url).to.equal('/path/to/site/foo/bar/');
+                expect(home.data.url).to.equal('/path/to/site/');
+                expect(page.data.url).to.equal('/path/to/site/hello/');
+                expect(sectionIndex.data.url).to.equal('/path/to/site/foo/');
+                expect(sectionPage.data.url).to.equal('/path/to/site/foo/bar/');
                 done();
             });
 
@@ -278,8 +277,8 @@ describe('gulp-ssg()', function() {
             var sectionIndex = getMarkdownFile('test/foo/index.md', 'section index');
             var subsectionIndex = getMarkdownFile('test/foo/bar/index.md', 'sub-section page');
 
-            sectionIndex.meta = { sectionTitle: 'This is foo' };
-            subsectionIndex.meta = { sectionTitle: 'This is bar' };
+            sectionIndex.data = { sectionTitle: 'This is foo' };
+            subsectionIndex.data = { sectionTitle: 'This is bar' };
 
             stream.on('end', function() {
                 expect(site.index).to.not.be.undefined;
@@ -383,25 +382,25 @@ describe('gulp-ssg()', function() {
             var subsectionPage2 = getMarkdownFile('test/foo/bar/page3.md', 'subsection page');
 
             stream.on('end', function() {
-                expect(home.meta.section).to.not.be.undefined;
-                expect(home.meta.section.name).to.equal('root');
-                expect(page1.meta.section.name).to.equal('root');
-                expect(page2.meta.section.name).to.equal('root');
-                expect(home.meta.section.files).to.not.be.undefined;
-                expect(page1.meta.section.files).to.not.be.undefined;
-                expect(page2.meta.section.files).to.not.be.undefined;
-                expect(sectionIndex.meta.section.name).to.equal('foo');
-                expect(sectionPage1.meta.section.name).to.equal('foo');
-                expect(sectionPage2.meta.section.name).to.equal('foo');
-                expect(sectionIndex.meta.section.files).to.not.be.undefined;
-                expect(sectionPage1.meta.section.files).to.not.be.undefined;
-                expect(sectionPage2.meta.section.files).to.not.be.undefined;
-                expect(subsectionIndex.meta.section.name).to.equal('bar');
-                expect(subsectionPage1.meta.section.name).to.equal('bar');
-                expect(subsectionPage2.meta.section.name).to.equal('bar');
-                expect(subsectionIndex.meta.section.files).to.not.be.undefined;
-                expect(subsectionPage1.meta.section.files).to.not.be.undefined;
-                expect(subsectionPage2.meta.section.files).to.not.be.undefined;
+                expect(home.data.section).to.not.be.undefined;
+                expect(home.data.section.name).to.equal('root');
+                expect(page1.data.section.name).to.equal('root');
+                expect(page2.data.section.name).to.equal('root');
+                expect(home.data.section.files).to.not.be.undefined;
+                expect(page1.data.section.files).to.not.be.undefined;
+                expect(page2.data.section.files).to.not.be.undefined;
+                expect(sectionIndex.data.section.name).to.equal('foo');
+                expect(sectionPage1.data.section.name).to.equal('foo');
+                expect(sectionPage2.data.section.name).to.equal('foo');
+                expect(sectionIndex.data.section.files).to.not.be.undefined;
+                expect(sectionPage1.data.section.files).to.not.be.undefined;
+                expect(sectionPage2.data.section.files).to.not.be.undefined;
+                expect(subsectionIndex.data.section.name).to.equal('bar');
+                expect(subsectionPage1.data.section.name).to.equal('bar');
+                expect(subsectionPage2.data.section.name).to.equal('bar');
+                expect(subsectionIndex.data.section.files).to.not.be.undefined;
+                expect(subsectionPage1.data.section.files).to.not.be.undefined;
+                expect(subsectionPage2.data.section.files).to.not.be.undefined;
                 done();
             });
 
@@ -430,7 +429,7 @@ describe('gulp-ssg()', function() {
 
             stream.on('end', function() {
                 var urls = site.index.files.map(function(file) {
-                    return file.meta.url;
+                    return file.data.url;
                 });
                 expect(urls).to.deep.equal([
                     '/',
@@ -438,7 +437,7 @@ describe('gulp-ssg()', function() {
                     '/xyz/'
                 ]);
                 var sectionUrls = site.index.sections[0].files.map(function(file) {
-                    return file.meta.url;
+                    return file.data.url;
                 });
                 expect(sectionUrls).to.deep.equal([
                     '/foo/',
@@ -471,15 +470,15 @@ describe('gulp-ssg()', function() {
             var sectionPage1 = getMarkdownFile('test/foo/10-hello.md', 'section page');
             var sectionPage2 = getMarkdownFile('test/foo/05-goodbye.md', 'section page');
 
-            page1.meta = { order: 1 };
-            page2.meta = { order: 12 };
-            page3.meta = { order: 6 };
-            sectionPage1.meta = { order: 1 };
-            sectionPage2.meta = { order: 2 };
+            page1.data = { order: 1 };
+            page2.data = { order: 12 };
+            page3.data = { order: 6 };
+            sectionPage1.data = { order: 1 };
+            sectionPage2.data = { order: 2 };
 
             stream.on('end', function() {
                 var urls = site.index.files.map(function(file) {
-                    return file.meta.url;
+                    return file.data.url;
                 });
                 expect(urls).to.deep.equal([
                     '/',
@@ -488,7 +487,7 @@ describe('gulp-ssg()', function() {
                     '/abc/'
                 ]);
                 var sectionUrls = site.index.sections[0].files.map(function(file) {
-                    return file.meta.url;
+                    return file.data.url;
                 });
                 expect(sectionUrls).to.deep.equal([
                     '/foo/',
@@ -525,17 +524,17 @@ describe('gulp-ssg()', function() {
             var section3Page1 = getMarkdownFile('test/xyz/10-hello.md', 'section page');
             var section3Page2 = getMarkdownFile('test/xyz/05-goodbye.md', 'section page');
 
-            section1Index.meta = { order: 5 };
-            section1Page1.meta = { order: 1 };
-            section1Page2.meta = { order: 2 };
+            section1Index.data = { order: 5 };
+            section1Page1.data = { order: 1 };
+            section1Page2.data = { order: 2 };
 
-            section2Index.meta = { order: 3 };
-            section2Page1.meta = { order: 1 };
-            section2Page2.meta = { order: 2 };
+            section2Index.data = { order: 3 };
+            section2Page1.data = { order: 1 };
+            section2Page2.data = { order: 2 };
 
-            section3Index.meta = { order: 1 };
-            section3Page1.meta = { order: 1 };
-            section3Page2.meta = { order: 2 };
+            section3Index.data = { order: 1 };
+            section3Page1.data = { order: 1 };
+            section3Page2.data = { order: 2 };
 
             stream.on('end', function() {
                 var sectionUrls = site.index.sections.map(function(section) {
@@ -548,7 +547,7 @@ describe('gulp-ssg()', function() {
                 ]);
 
                 var section1Urls = site.index.sections[0].files.map(function(file) {
-                    return file.meta.url;
+                    return file.data.url;
                 });
                 expect(section1Urls).to.deep.equal([
                     '/xyz/',
@@ -557,7 +556,7 @@ describe('gulp-ssg()', function() {
                 ]);
 
                 var section2Urls = site.index.sections[1].files.map(function(file) {
-                    return file.meta.url;
+                    return file.data.url;
                 });
                 expect(section2Urls).to.deep.equal([
                     '/bar/',
@@ -566,7 +565,7 @@ describe('gulp-ssg()', function() {
                 ]);
 
                 var section3Urls = site.index.sections[2].files.map(function(file) {
-                    return file.meta.url;
+                    return file.data.url;
                 });
                 expect(section3Urls).to.deep.equal([
                     '/foo/',
