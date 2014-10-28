@@ -19,7 +19,7 @@ var path = require('path');
  * @return stream
  */
 module.exports = function(site, options) {
-    site = site || {};
+    site = _.extend({ baseUrl: '/' }, site || {});
     options = _.extend({
         baseUrl: '',
         sort: 'url',
