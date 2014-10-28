@@ -146,6 +146,7 @@ gulp.task('watch', function() {
 ```
 
 [gulp]:http://gulpjs.com
+[gulp-data]:https://github.com/colynb/gulp-data
 
 [npm-url]: https://npmjs.org/package/gulp-ssg
 [npm-image]: http://img.shields.io/npm/v/gulp-ssg.svg?style=flat
