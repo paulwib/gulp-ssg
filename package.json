@@ -30,13 +30,17 @@
     "hogan.js": "^3.0.2",
     "marked": "^0.3.2",
     "mocha": "~2.0.1",
+    "mversion": "^1.6.1",
     "should": "~4.1.0"
   },
   "engines": {
     "node": ">=0.9"
   },
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha"
+    "test": "./node_modules/mocha/bin/mocha",
+    "release-patch": "./node_modules/.bin/mversion patch -m 'Released patch version v%s'",
+    "release-minor": "./node_modules/.bin/mversion minor -m 'Released minor version v%s'",
+    "release-major": "./node_modules/.bin/mversion major -m 'Released major version v%s'"
   },
   "keywords": [
     "gulpplugin",
