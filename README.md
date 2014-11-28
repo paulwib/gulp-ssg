@@ -1,18 +1,28 @@
+
 ### This is a fork which adds an [option to disable pretty URLs](https://github.com/paulwib/gulp-ssg/pull/2).
 
+gulp-ssg [![NPM version][npm-image]][npm-url] [![Dependency Status][depstat-image]][depstat-url] [![Build Status][travis-image]][travis-url]
+
+
 A [gulp][] plugin to generate a static site.
+
+## Installation
+
+```bash
+$ npm install gulp-ssg
+```
 
 ## Usage
 
 ```javascript
 var ssg = require('gulp-ssg');
-var site = {
+var website = {
     title: 'My site'
 };
 
 gulp.task('html', function() {
     return gulp.src('content/**/*.md')
-        .pipe(ssg(site))
+        .pipe(ssg(website))
         .pipe(gulp.dest('public/'));
 });
 ```
@@ -24,107 +34,82 @@ This will rename the files so they have pretty URLs e.g.
     content/bar/index.md    -> public/bar/index.html
     content/bar/hello.md    -> public/bar/hello/index.html
 
-It will also add properties to a `meta` object of each file:
+It will add properties to each files `data` property:
 
-* `file.meta.url`
-* `file.meta.isHome`
-* `file.meta.isIndex`
-* `file.meta.sectionUrl`
-* `file.meta.section`
+* `file.data.url` - `string` The full page URL
+* `file.data.isHome` - `boolean` Is it the root index page?
+* `file.data.isIndex` - `boolean` Is it a directory index page?
+* `file.data.sectionUrl` - `string` The URL of the section this page is in
+* `file.data.section` - `object` A pointer to the section in the website map
+* `file.data.website` - `object` The original passed in website object
+* `file.data.website.map` - `object` A map of all the files
 
-Finally, it will add an `index` property to the passed in `site` object which is a tree of all the content.
-The above example would look like:
+The `file.data.website.map` represents a tree map of all files in the website. This can be used for things like generating global navigation, or making a single-page website. It looks like:
 
 ```javascript
-
-    {
-        name: 'root',
-        url: '/',
-        files: [<index.html>, <foo/index.html> ] // All files in this section
-        sections: [
-            {
-                name: 'bar',
-                url: 'bar',
-                files: [<bar/index.html>, <bar/foo/index.html>]
-            }
-        ]
-    }
+{
+    name: 'root',
+    url: '/',
+    files: [<index.html>, <foo/index.html> ] // All files in this section
+    sections: [
+        {
+            name: 'bar',
+            url: '/bar/',
+            files: [<bar/index.html>, <bar/foo/index.html>]
+        }
+    ]
+}
 ```
-
-As implied above each file has a reference back to it's section in this tree.
+Also each file has a reference back to it's section in the tree, so it's possible to generate sub-navigation too with `file.data.section.files`.
 
 ## Example
 
-It gets more interesting when combined with other pipes. For example:
+So how can this be used? It gets more interesting when combined with other pipes. For example:
 
 ```javascript
-var ssg = require('gulp-ssg');
-var frontmatter = require('gulp-front-matter');
-var marked = require('gulp-marked');
-var site = {
-    title: 'My site'
-};
-
-gulp.task('html', function() {
-    return gulp.src('content/**/*.md')
-        .pipe(frontmatter({
-            property: 'meta'
-        }))
-        .pipe(marked())
-        .pipe(ssg(site, {
-            property: 'meta'
-        }))
-        .pipe(gulp.dest('public/'));
-});
-```
-
-This will extract any YAML front-matter, convert the content of each file from markdown to HTML, then run the ssg. The data extracted from the front-matter will be combined with the data extracted by the ssg in the `meta` property.
-
-## Templates
-
-A common requirement of static sites is to pass the content through some template engine. There is nothing built into `gulp-ssg` to do this, but it's very easy to add with another pipe.
-
-After the step above you will have created a bunch of HTML files. Now you can run them through a templating pipe. All the files are processed before the next pipe, so the template will have access to the complete site index for things like generating global navigation, or a list of sub-pages in the current section.
-
-So to add this to the above example:
-
-```javascript
-var ssg = require('gulp-ssg');
-var frontmatter = require('gulp-front-matter');
-var marked = require('gulp-marked');
+var ssg = require('../');
+var gulp = require('gulp');
+var data = require('gulp-data');
+var fm = require('front-matter');
+var marked = require('marked');
 var fs = require('fs');
 var es = require('event-stream');
-var mustache = require('mustache');
-var site = {
+var hogan = require('hogan.js');
+
+var website = {
     title: 'My site'
 };
 
 gulp.task('html', function() {
 
-    var template = String(fs.readFileSync('templates/page.html'));
+    // Compile a template for rendering each page
+    var template = hogan.compile(String(fs.readFileSync('templates/template.html')));
 
     return gulp.src('content/**/*.md')
-        .pipe(frontmatter({
-            property: 'meta'
+
+        // Extract YAML front-matter, convert content to markdown via gulp-data
+        .pipe(data(function(file) {
+            var content = fm(String(file.contents));
+            file.contents = new Buffer(marked(content.body));
+            return content.attributes;
         }))
-        .pipe(marked())
-        .pipe(ssg(site, {
-            property: 'meta'
-        }))
+
+        // Run through gulp-ssg, copy title from YAML to section
+        .pipe(ssg(website, { sectionProperties: ['title'] }))
+
+        // Run each file through a template
         .pipe(es.map(function(file, cb) {
-            var html = mustache.render(template, {
-                page: file.meta,
-                site: site,
-                content: String(file.contents)
-            });
-            file.contents = new Buffer(html);
+            file.contents = new Buffer(template.render(file));
             cb(null, file);
         }))
-        .pipe(gulp.dest('public/'));
+
+        // Output to build directory
+        .pipe(gulp.dest('build/'));
 });
+
 ```
 
-This uses `es.map` to modify the stream directly, but if you have a common way of rendering many sites it might be worth writing a little plug-in with a bit more error handling etc.
+This plug-in follows the [gulp-data][] convention of using `file.data`, so anything returned from a `gulp-data` pipe will be merged with the properties above.
 
 ## Caveats
 
@@ -138,35 +123,21 @@ The base URL of the site, defaults to '/'. This should be the path to where your
 
 ### sort `string`
 
-A property to sort pages by in the index, defaults to `url`. For example, this could be a property like `order` extracted from the YAML front-matter, giving content editors full control over the order of pages.
-
-### property `string`
-
-The name of the property to attach data to, defaults to `meta`.
+A property to sort pages by, defaults to `url`. For example, this could be a property like `order` extracted from the YAML front-matter, giving content editors full control over the order of pages.
 
 ### sectionProperties `array`
 
 A list of properties to extract from index pages to add to the section, defaults to an empty list. For example, you could add a `sectionTitle` to front-matter in your `index.md` files, then use this it for link text in your global navigation.
 
-## Previewing Your Website
-
-Add a `watch` task to run a server for previewing your website:
-
-```javascript
-var http = require('http'),
-	ecstatic = require('ecstatic');
-
-gulp.task('watch', function() {
-	http.createServer(
-        ecstatic({ root: __dirname + '/public'  })
-    ).listen(8745);
-    console.log('Preview at http://localhost:8745');
-
-    gulp.watch('content/', ['html']);
-    gulp.watch('templates/', ['default']);
-});
-```
-
-
 
 [gulp]:http://gulpjs.com
+[gulp-data]:https://github.com/colynb/gulp-data
+
+[npm-url]: https://npmjs.org/package/gulp-ssg
+[npm-image]: http://img.shields.io/npm/v/gulp-ssg.svg?style=flat
+
+[depstat-url]: https://david-dm.org/paulwib/gulp-ssg
+[depstat-image]: https://david-dm.org/paulwib/gulp-ssg.svg?style=flat
+
+[travis-image]: http://img.shields.io/travis/paulwib/gulp-ssg/master.svg?style=flat
+[travis-url]: https://travis-ci.org/paulwib/gulp-ssg

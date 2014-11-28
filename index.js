@@ -9,68 +9,66 @@ var _ = require('lodash');
 var path = require('path');
 
 /**
- * Convert text files to a website with nice urls, extra file meta-data and
- * provide a tree style index of the content.
+ * Convert text files to a website with nice urls, extra file.data and a website.map tree of content
  *
- * @param object site                       The site to attach the indexes to
- * @param array options.baseUrl             The base url of the final site
+ * @param object website                    An object to attach the map to, reference added to each file
+ * @param array options.baseUrl             The base url of the final website
  * @param array options.sort                The property to sort by
- * @param array options.property            The property to attach to the file, defaults to `meta`
  * @param array options.sectionProperties   List of properties to copy from index file to section
  * @return stream
  */
-module.exports = function(site, options) {
+module.exports = function(website, options) {
+    website = website || {};
     options = _.extend({
         baseUrl: '',
         sort: 'url',
-        property: 'meta',
         sectionProperties: [],
         prettyUrls: true
     }, options || {});
+
+    // remove trailing slash from baseUrl
+    if (options.baseUrl && options.baseUrl.length > 1 && options.baseUrl.substr(-1) === '/') {
+        options.baseUrl = options.baseUrl.substr(0, options.baseUrl.length - 1);
+    }
 
     var buffer = [];
 
     return through(bufferContents, endStream);
 
     /**
-     * Rename each file and add meta properties:
-     *  - isHome
-     *  - isIndex
-     *  - url
-     *  - sectionUrl
+     * Rename each file and add properties to `data`
      *
      * @param object file
      */
     function bufferContents(file) {
-        if (typeof options.property !== 'string' || !options.property) {
-            return this.emit('error', new PluginError('gulp-ssg',  'options.property is required'));
-        }
         if (file.isNull()) {
             return;
         }
         if (file.isStream()) {
             return this.emit('error', new PluginError('gulp-ssg',  'Streaming not supported'));
         }
+
         var basename = path.basename(file.relative, path.extname(file.path)),
             isIndex = basename === 'index',
             originalDir = rename(file),
             isHome = isIndex && originalDir === '.',
             fileUrl = isHome ? options.baseUrl + '/' : url(file, options.baseUrl);
 
-        file[options.property] = _.extend({
+        file.data = _.extend({
+            website: website,
             name: basename,
             isIndex: isIndex,
             isHome: isHome,
             url: fileUrl,
             sectionUrl: sectionUrl(fileUrl, isIndex, file)
-        }, file[options.property] || {});
+        }, file.data || {});
 
         buffer.push(file);
     }
 
     /**
-     * At the end of the stream build the site index, sort, then emit the file data.
-     * This ensures the full index is built before the next pipe sees the file.
+     * At the end of the stream build the website map, sort, then emit the file data.
+     * This ensures the full map is built before the next pipe sees the file.
      */
     function endStream() {
         if (buffer.length === 0) {
@@ -79,8 +77,8 @@ module.exports = function(site, options) {
 
         if (options.sort) {
             buffer.sort(function(a, b) {
-                var aDepth = a.meta.url.split('/').length;
-                var bDepth = b.meta.url.split('/').length;
+                var aDepth = a.data.url.split('/').length;
+                var bDepth = b.data.url.split('/').length;
                 if (aDepth < bDepth) {
                     return -1;
                 }
@@ -91,12 +89,12 @@ module.exports = function(site, options) {
                     return -1;
                 }
 
-                return a[options.property][options.sort] >= b[options.property][options.sort] ? 1 : -1;
+                return a.data[options.sort] >= b.data[options.sort] ? 1 : -1;
             });
         }
 
-        site.index = treeify(options.baseUrl, buffer);
-        addSectionToFiles(site.index);
+        website.map = treeify(options.baseUrl, buffer);
+        addSectionToFiles(website.map);
 
         buffer.forEach(function(file) {
             this.emit('data', file);
@@ -106,19 +104,19 @@ module.exports = function(site, options) {
     }
 
     /**
-     * Copy options.sectionProperties from file meta to section
+     * Copy options.sectionProperties from file data to section
      *
-     * @param object meta
+     * @param object data
      * @return object
      */
-    function copySectionProperties(meta) {
+    function copySectionProperties(data) {
         if (typeof options.sectionProperties.forEach !== 'function') {
             return;
         }
         var props = {};
         options.sectionProperties.forEach(function(prop) {
-            if (typeof meta[prop] !== 'undefined') {
-                props[prop] = meta[prop];
+            if (typeof data[prop] !== 'undefined') {
+                props[prop] = data[prop];
             }
         });
 
@@ -134,7 +132,6 @@ module.exports = function(site, options) {
     function treeify(baseUrl) {
         var currentList,
             foundAtIndex,
-            meta,
             baseUrlReplace = new RegExp('^' + baseUrl),
             sectionsToFiles = mapSectionsToFiles(buffer),
             contentTree = {
@@ -143,21 +140,20 @@ module.exports = function(site, options) {
             };
 
         buffer.forEach(function(file) {
-            meta = file[options.property];
 
-            if (meta.isHome) {
+            if (file.data.isHome) {
                 contentTree.name = 'root';
-                contentTree.url = meta.url;
-                contentTree = _.extend(contentTree, copySectionProperties(meta));
+                contentTree.url = file.data.url;
+                contentTree = _.extend(contentTree, copySectionProperties(file.data));
                 return;
             }
 
-            if (!meta.isIndex) {
+            if (!file.data.isIndex) {
                 return;
             }
 
             currentList = contentTree.sections;
-            meta.url.replace(baseUrlReplace, '').split('/').filter(function(t) {
+            file.data.url.replace(baseUrlReplace, '').split('/').filter(function(t) {
                 return t !== '';
             }).forEach(function(token, index) {
                 foundAtIndex = -1;
@@ -172,10 +168,10 @@ module.exports = function(site, options) {
                 if (foundAtIndex === -1) {
                     currentList.push(_.extend({
                         name: token,
-                        url: meta.url,
+                        url: file.data.url,
                         sections: [],
-                        files: sectionsToFiles[meta.sectionUrl]
-                    }, copySectionProperties(meta)));
+                        files: sectionsToFiles[file.data.sectionUrl]
+                    }, copySectionProperties(file.data)));
 
                     currentList = currentList[currentList.length-1].sections;
                 }
@@ -191,36 +187,35 @@ module.exports = function(site, options) {
      * @return object
      */
     function mapSectionsToFiles() {
-        var map = {}, meta;
+        var map = {};
         buffer.forEach(function(file) {
-            meta = file[options.property];
-            if (typeof map[meta.sectionUrl] === 'undefined') {
-                map[meta.sectionUrl] = [];
+            if (typeof map[file.data.sectionUrl] === 'undefined') {
+                map[file.data.sectionUrl] = [];
             }
-            map[meta.sectionUrl].push(file);
+            map[file.data.sectionUrl].push(file);
         });
 
         return map;
     }
 
     /**
-     * Give each file meta a reference back to it's section
+     * Give each file data a reference back to it's section
      *
-     * @param object index The content tree
+     * @param object map The website map
      */
-    function addSectionToFiles(index) {
-        
-        if (!index.files) {
+
+    function addSectionToFiles(map) {
+        if (!map.files.length) {
             return;
         }
-        index.files.forEach(function(file) {
-            file[options.property].section = index;
-            if (!index.sections.length) {
+        map.files.forEach(function(file) {
+            file.data.section = map;
+            if (!map.sections.length) {
                 return;
             }
         });
         // Recurse over nested sections
-        index.sections.forEach(function(section) {
+        map.sections.forEach(function(section) {
             addSectionToFiles(section);
         });
     }
@@ -239,10 +234,10 @@ module.exports = function(site, options) {
         {
             file.path = file.base +
                 (basename !== 'index' ? dirname + '/' + basename : dirname) +
-                '/index.html';            
+                '/index.html';
         }
         else {
-            file.path = file.base + dirname + '/' + basename + path.extname(file.relative); 
+            file.path = file.base + dirname + '/' + basename + path.extname(file.relative);
         }
 
 
@@ -274,7 +269,7 @@ module.exports = function(site, options) {
         if (basename !== 'index') // which will only happen when in non prettyUrl mode
         {
             if(url === '/./'){
-                result = '/' 
+                result = '/'
             }
             else {
                 result = url.split('/').slice(0, -1).join('/') + '/';

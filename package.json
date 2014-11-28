@@ -1,6 +1,6 @@
 {
   "name": "gulp-ssg",
-  "version": "0.4.5",
+  "version": "1.0.0",
   "main": "index.js",
   "homepage": "https://github.com/paulwib/gulp-ssg",
   "bugs": "https://github.com/paulwib/gulp-ssg/issues",
@@ -18,21 +18,29 @@
   },
   "dependencies": {
     "lodash": "~2.4.1",
-    "event-stream": "~3.1.0",
-    "gulp-util": "~2.2.14",
+    "gulp-util": "~3.0.1",
     "through": "~2.3.4"
   },
   "devDependencies": {
-    "gulp": "~3.5.2",
     "chai": "~1.9.0",
-    "mocha": "~1.17.1",
-    "should": "~3.1.3"
+    "event-stream": "^3.1.7",
+    "front-matter": "^0.2.0",
+    "gulp": "~3.8.9",
+    "gulp-data": "^1.0.2",
+    "hogan.js": "^3.0.2",
+    "marked": "^0.3.2",
+    "mocha": "~2.0.1",
+    "mversion": "^1.6.1",
+    "should": "~4.1.0"
   },
   "engines": {
     "node": ">=0.9"
   },
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha"
+    "test": "./node_modules/mocha/bin/mocha",
+    "release-patch": "./node_modules/.bin/mversion patch -m 'Released patch version v%s'",
+    "release-minor": "./node_modules/.bin/mversion minor -m 'Released minor version v%s'",
+    "release-major": "./node_modules/.bin/mversion major -m 'Released major version v%s'"
   },
   "keywords": [
     "gulpplugin",
