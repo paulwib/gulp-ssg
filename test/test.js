@@ -246,31 +246,30 @@ describe('gulp-ssg()', function() {
             stream.end();
         });
 
-        /*it('should remove a trailing slash from the specified base url', function(done) {
-            var website = {};
+        it('should remove a trailing slash from the specified base url', function(done) {
             var options = {
                 baseUrl: '/path/to/site/'
             };
-            var stream = ssg(website, options);
-            var home = getMarkdownFile('test/index.md', 'home');
-            var page = getMarkdownFile('test/hello.md', 'page');
-            var sectionIndex = getMarkdownFile('test/foo/index.md', 'section index');
-            var sectionPage = getMarkdownFile('test/foo/bar.md', 'section page');
+            var stream = ssg(options);
+            var home = getMarkdownFile('test/index.html', 'home');
+            var page1 = getMarkdownFile('test/hello.html', 'page');
+            var page2 = getMarkdownFile('test/foo/index.html', 'section index');
+            var childPage1 = getMarkdownFile('test/foo/bar.html', 'section page');
 
             stream.on('end', function() {
                 expect(home.data.url).to.equal('/path/to/site/');
-                expect(page.data.url).to.equal('/path/to/site/hello/');
-                expect(sectionIndex.data.url).to.equal('/path/to/site/foo/');
-                expect(sectionPage.data.url).to.equal('/path/to/site/foo/bar/');
+                expect(page1.data.url).to.equal('/path/to/site/hello.html');
+                expect(page2.data.url).to.equal('/path/to/site/foo/');
+                expect(childPage1.data.url).to.equal('/path/to/site/foo/bar.html');
                 done();
             });
 
             stream.write(home);
-            stream.write(page);
-            stream.write(sectionIndex);
-            stream.write(sectionPage);
+            stream.write(page1);
+            stream.write(page2);
+            stream.write(childPage1);
             stream.end();
-        });*/
+        });
 
         /*it('should generate an index tree of sections', function(done) {
             var website = {};
