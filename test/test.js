@@ -23,40 +23,18 @@ describe('gulp-ssg()', function() {
 
     describe('in buffer mode', function() {
 
-        it('should assign urls, truncating "index"', function(done) {
+        it('should assign urls, truncating "index" (regardless of file extension)', function(done) {
             var stream = ssg();
-            var h = mockFile('test/index.html');
-            var p1 = mockFile('test/hello.html');
+            var h = mockFile('test/index.md');
+            var p1 = mockFile('test/hello.xhtml');
             var p2 = mockFile('test/foo/index.html');
-            var p2_1 = mockFile('test/foo/bar.html');
+            var p2_1 = mockFile('test/foo/bar.xml');
 
             stream.on('end', function() {
                 expect(h.data.url).to.equal('/');
-                expect(p1.data.url).to.equal('/hello.html');
+                expect(p1.data.url).to.equal('/hello.xhtml');
                 expect(p2.data.url).to.equal('/foo/');
-                expect(p2_1.data.url).to.equal('/foo/bar.html');
-                done();
-            });
-
-            stream.write(h);
-            stream.write(p1);
-            stream.write(p2);
-            stream.write(p2_1);
-            stream.end();
-        });
-
-        it('should work with the .htm extension', function(done) {
-            var stream = ssg();
-            var h = mockFile('test/index.htm');
-            var p1 = mockFile('test/hello.htm');
-            var p2 = mockFile('test/foo/index.htm');
-            var p2_1 = mockFile('test/foo/bar.htm');
-
-            stream.on('end', function() {
-                expect(h.data.url).to.equal('/');
-                expect(p1.data.url).to.equal('/hello.htm');
-                expect(p2.data.url).to.equal('/foo/');
-                expect(p2_1.data.url).to.equal('/foo/bar.htm');
+                expect(p2_1.data.url).to.equal('/foo/bar.xml');
                 done();
             });
 

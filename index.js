@@ -127,7 +127,7 @@ module.exports = function(options) {
      * @param {object} file
      */
     function url(file) {
-        return options.baseUrl + file.relative.replace(/index.html?$/, '');
+        return options.baseUrl + file.relative.replace(/index\..+$/, '');
     }
 
     /**
