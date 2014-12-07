@@ -47,8 +47,7 @@ module.exports = function(options) {
     }
 
     /**
-     * At the end of the stream add the pointers and emit the file data.
-     * This ensures the full map is built before the next pipe sees the file.
+     * Emit file data at end of stream
      */
     function endStream() {
         if (buffer.length === 0) {
@@ -58,7 +57,7 @@ module.exports = function(options) {
         Object.keys(buffer).forEach(function(url) {
             var file = buffer[url];
             file.data = _.extend({
-                root: buffer['/'],
+                root: buffer['/'] || null,
                 parent: parent(url),
                 children: children(url),
                 siblings: siblings(url)
@@ -80,14 +79,16 @@ module.exports = function(options) {
         if (url === options.baseUrl) {
             return null;
         }
-        var parentUrl = url
+        return buffer[parentUrl(url)] || null;
+    }
+
+    function parentUrl(url) {
+        return url
             .replace(/\..+$/, '')
             .replace(/\/$/, '')
             .split('/')
             .slice(0, -1)
             .join('/') + '/';
-
-        return buffer[parentUrl] || null;
     }
 
     /**
@@ -96,17 +97,8 @@ module.exports = function(options) {
      * @param {string} url
      */
     function children(url) {
-        // Do URLs start with same path and not have further path tokens?
-        var rx = new RegExp('^' + url + '[^/]+/?$'),
-            ch = [];
-
-        ch = Object.keys(buffer).reduce(function(ch, val) {
-            if (rx.test(val)) {
-                ch.push(buffer[val]);
-            }
-            return ch;
-        }, ch);
-
+        // Filter to find files with this url as parent
+        var ch = filter(new RegExp('^' + url + '[^/]+/?$'));
         sort(ch);
 
         return ch;
@@ -121,7 +113,11 @@ module.exports = function(options) {
         if (url === options.baseUrl) {
             return [];
         }
-        return children(parent(url).data.url);
+        // Filter to find files with same parent URL
+        var sb = filter(new RegExp('^' + parentUrl(url) + '[^/]+/?$'));
+        sort(sb);
+
+        return sb;
     }
 
     /**
@@ -145,6 +141,18 @@ module.exports = function(options) {
         files.sort(function(a, b) {
             return a.data[options.sort] >= b.data[options.sort] ? 1 : -1;
         });
+    }
+
+    /**
+     * Filter buffer to return array of files with URLs matching given regex
+     */
+    function filter(rx) {
+        return Object.keys(buffer).reduce(function(files, val) {
+            if (rx.test(val)) {
+                files.push(buffer[val]);
+            }
+            return files;
+        }, []);
     }
 
 };

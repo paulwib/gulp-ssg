@@ -334,6 +334,29 @@ describe('gulp-ssg()', function() {
             stream.end();
         });
 
+        it('should give not break if there is no root file', function(done) {
+
+            var stream = ssg();
+            var p1 = mockFile('test/hello.html');
+            var p2 = mockFile('test/foo/index.html');
+            var p2_1 = mockFile('test/foo/bar.html');
+
+            stream.on('end', function() {
+                expect(p1.data.root).to.equal(null);
+                expect(p1.data.siblings[0].data.url).to.equal('/foo/');
+                expect(p1.data.siblings[1].data.url).to.equal('/hello.html');
+                expect(p2.data.siblings[0].data.url).to.equal('/foo/');
+                expect(p2.data.siblings[1].data.url).to.equal('/hello.html');
+                expect(p2_1.data.siblings.length).to.equal(1);
+                done();
+            });
+
+            stream.write(p1);
+            stream.write(p2);
+            stream.write(p2_1);
+            stream.end();
+        });
+
     });
 
 });
