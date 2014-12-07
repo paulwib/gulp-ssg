@@ -136,6 +136,64 @@ describe('gulp-ssg()', function() {
             stream.end();
         });
 
+        it('should handle deeply nested trees', function(done) {
+
+            /* jshint camelcase: false */
+            var stream = ssg();
+            // Files named like level[n]page[n]
+            var h = mockFile('test/index.html', 'home');
+            var p1 = mockFile('test/hello.html', 'page');
+            var p2 = mockFile('test/foo/index.html', 'page');
+            var p2_1 = mockFile('test/foo/bar.html', 'page');
+            var p2_2 = mockFile('test/foo/qux.html', 'page');
+            var p2_3 = mockFile('test/foo/fred/index.html', 'page');
+            var p2_3_1 = mockFile('test/foo/fred/foo/index.html', 'page');
+            var p2_3_2 = mockFile('test/foo/fred/bar.html', 'page');
+
+            stream.on('end', function() {
+
+                // Siblings
+                expect(h.data.siblings.length).to.equal(0);
+
+                expect(p1.data.siblings.map(function(f) { return f.data.url; }))
+                    .to.deep.equal(['/foo/', '/hello.html']);
+
+                expect(p2.data.siblings.map(function(f) { return f.data.url; }))
+                    .to.deep.equal(['/foo/', '/hello.html']);
+
+                expect(p2_1.data.siblings.map(function(f) { return f.data.url; }))
+                    .to.deep.equal(['/foo/bar.html', '/foo/fred/', '/foo/qux.html']);
+
+                expect(p2_2.data.siblings.map(function(f) { return f.data.url; }))
+                    .to.deep.equal(['/foo/bar.html', '/foo/fred/', '/foo/qux.html']);
+
+                expect(p2_3.data.siblings.map(function(f) { return f.data.url; }))
+                    .to.deep.equal(['/foo/bar.html', '/foo/fred/', '/foo/qux.html']);
+
+                // Children
+                expect(h.data.children.map(function(f) { return f.data.url; }))
+                    .to.deep.equal(['/foo/', '/hello.html']);
+
+                expect(p2.data.children.map(function(f) { return f.data.url; }))
+                    .to.deep.equal(['/foo/bar.html', '/foo/fred/', '/foo/qux.html']);
+
+                expect(p2_3.data.children.map(function(f) { return f.data.url; }))
+                    .to.deep.equal(['/foo/fred/bar.html', '/foo/fred/foo/']);
+
+                done();
+            });
+
+            stream.write(h);
+            stream.write(p1);
+            stream.write(p2);
+            stream.write(p2_1);
+            stream.write(p2_2);
+            stream.write(p2_3);
+            stream.write(p2_3_1);
+            stream.write(p2_3_2);
+            stream.end();
+        });
+
         it('should use the specified base url', function(done) {
             var options = {
                 baseUrl: '/path/to/site'
