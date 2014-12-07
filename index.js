@@ -49,31 +49,13 @@ module.exports = function(options) {
     }
 
     /**
-     * At the end of the stream build the website map, sort, then emit the file data.
+     * At the end of the stream add the pointers and emit the file data.
      * This ensures the full map is built before the next pipe sees the file.
      */
     function endStream() {
         if (buffer.length === 0) {
             return this.emit('end');
         }
-
-        /*if (options.sort) {
-            buffer.sort(function(a, b) {
-                var aDepth = a.data.url.split('/').length;
-                var bDepth = b.data.url.split('/').length;
-                if (aDepth < bDepth) {
-                    return -1;
-                }
-                if (bDepth < aDepth) {
-                    return 1;
-                }
-                if (a.isIndex) {
-                    return -1;
-                }
-
-                return a.data[options.sort] >= b.data[options.sort] ? 1 : -1;
-            });
-        }*/
 
         Object.keys(buffer).forEach(function(url) {
             var file = buffer[url];
@@ -83,7 +65,9 @@ module.exports = function(options) {
                 children: children(url, buffer),
                 siblings: siblings(url, buffer)
             }, file.data || {});
+
             this.emit('data', file);
+
         }.bind(this));
 
         this.emit('end');
@@ -105,14 +89,19 @@ module.exports = function(options) {
 
     function children(url, buffer) {
         // Do URLs start with same path and not have further path tokens?
-        var rx = new RegExp('^' + url + '[^/]+/?$');
+        var rx = new RegExp('^' + url + '[^/]+/?$'),
+            ch = [];
 
-        return Object.keys(buffer).reduce(function(ch, val) {
+        ch = Object.keys(buffer).reduce(function(ch, val) {
             if (rx.test(val)) {
                 ch.push(buffer[val]);
             }
             return ch;
-        }, []);
+        }, ch);
+
+        sort(ch);
+
+        return ch;
     }
 
     function siblings(url, buffer) {
@@ -124,6 +113,15 @@ module.exports = function(options) {
 
     function url(file) {
         return options.baseUrl + file.relative.replace(/index.html$/, '');
+    }
+
+    function sort(files) {
+        if (!options.sort) {
+            return;
+        }
+        files.sort(function(a, b) {
+            return a.data[options.sort] >= b.data[options.sort] ? 1 : -1;
+        });
     }
 
 };
