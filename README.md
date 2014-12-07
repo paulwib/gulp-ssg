@@ -1,7 +1,7 @@
-gulp-ssg [![NPM version][npm-image]][npm-url] [![Dependency Status][depstat-image]][depstat-url] [![Build Status][travis-image]][travis-url]
+[gulp][]-ssg [![NPM version][npm-image]][npm-url] [![Dependency Status][depstat-image]][depstat-url] [![Build Status][travis-image]][travis-url]
 ===
 
-A [gulp][] plugin to generate a static site.
+A [gulp][] plugin to help generate a static website from a bunch of files.
 
 ## Installation
 
@@ -13,51 +13,30 @@ $ npm install gulp-ssg
 
 ```javascript
 var ssg = require('gulp-ssg');
-var website = {
-    title: 'My site'
-};
 
 gulp.task('html', function() {
-    return gulp.src('content/**/*.md')
-        .pipe(ssg(website))
+    return gulp.src('content/**/*.html')
+        .pipe(ssg())
         .pipe(gulp.dest('public/'));
 });
 ```
 
-This will rename the files so they have pretty URLs e.g.
+This will add properties to each files `data` property:
 
-    content/index.md        -> public/index.html
-    content/foo.md          -> public/foo/index.html
-    content/bar/index.md    -> public/bar/index.html
-    content/bar/hello.md    -> public/bar/hello/index.html
+* `file.data.url` - `string` A URL, which is the `file.relative` with a slash prepended and any trailing `index.html` removed
+* `file.data.root` - `object` A pointer to the root file
+* `file.data.parent` - `object` A pointer to the parent file
+* `file.data.children` - `array` A list of pointers to child files
+* `file.data.siblings` - `array` A list of pointers to sibling files
 
-It will add properties to each files `data` property:
+To explain these a bit more:
 
-* `file.data.url` - `string` The full page URL
-* `file.data.isHome` - `boolean` Is it the root index page?
-* `file.data.isIndex` - `boolean` Is it a directory index page?
-* `file.data.sectionUrl` - `string` The URL of the section this page is in
-* `file.data.section` - `object` A pointer to the section in the website map
-* `file.data.website` - `object` The original passed in website object
-* `file.data.website.map` - `object` A map of all the files
+* The `root` file is the root `index.html` file. If there isn't one then `root` will be `null`.
+* The `parent` file is the parent `index.html` file. If there isn't one then `parent` will be `null`.
+* The `children` are all the files that have a URL that starts with the current files path plus at least one more token in there path. Because `index.html` is truncated from URLs this means `/foo/bar/` and `/foo/fred.html` are both children of `/foo/index.html`.
+* The `siblings` are all the files that have a common parent URL.
 
-The `file.data.website.map` represents a tree map of all files in the website. This can be used for things like generating global navigation, or making a single-page website. It looks like:
-
-```javascript
-{
-    name: 'root',
-    url: '/',
-    files: [<index.html>, <foo/index.html> ] // All files in this section
-    sections: [
-        {
-            name: 'bar',
-            url: '/bar/',
-            files: [<bar/index.html>, <bar/foo/index.html>]
-        }
-    ]
-}
-```
-Also each file has a reference back to it's section in the tree, so it's possible to generate sub-navigation too with `file.data.section.files`.
+This plug-in follows the [gulp-data][] convention of using `file.data`, so anything returned from a `gulp-data` pipe will be merged with the properties above.
 
 ## Example
 
@@ -73,10 +52,6 @@ var fs = require('fs');
 var es = require('event-stream');
 var hogan = require('hogan.js');
 
-var website = {
-    title: 'My site'
-};
-
 gulp.task('html', function() {
 
     // Compile a template for rendering each page
@@ -91,8 +66,8 @@ gulp.task('html', function() {
             return content.attributes;
         }))
 
-        // Run through gulp-ssg, copy title from YAML to section
-        .pipe(ssg(website, { sectionProperties: ['title'] }))
+        // Run through gulp-ssg
+        .pipe(ssg())
 
         // Run each file through a template
         .pipe(es.map(function(file, cb) {
@@ -106,12 +81,6 @@ gulp.task('html', function() {
 
 ```
 
-This plug-in follows the [gulp-data][] convention of using `file.data`, so anything returned from a `gulp-data` pipe will be merged with the properties above.
-
-## Caveats
-
-* Each directory *must* contain a file with a base name of `index` (e.g. `index.md`) to have the site index fully traversed.
-
 ## Options
 
 ### baseUrl `string`
@@ -120,11 +89,7 @@ The base URL of the site, defaults to '/'. This should be the path to where your
 
 ### sort `string`
 
-A property to sort pages by, defaults to `url`. For example, this could be a property like `order` extracted from the YAML front-matter, giving content editors full control over the order of pages.
-
-### sectionProperties `array`
-
-A list of properties to extract from index pages to add to the section, defaults to an empty list. For example, you could add a `sectionTitle` to front-matter in your `index.md` files, then use this it for link text in your global navigation.
+A property to sort pages by, defaults to `url`. For example, this could be a property like `order` extracted from the YAML front-matter.
 
 
 [gulp]:http://gulpjs.com
