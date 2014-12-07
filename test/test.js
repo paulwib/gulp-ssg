@@ -7,25 +7,25 @@ var path = require('path');
 var File = require('gulp-util').File;
 var Buffer = require('buffer').Buffer;
 
-function getMarkdownFile(path, content) {
-    return new File({
-        cwd: '',
-        base: 'test/',
-        path: path,
-        contents: new Buffer(content)
-    });
-}
-
 describe('gulp-ssg()', function() {
+
+    function mockFile(path, content) {
+        return new File({
+            cwd: '',
+            base: 'test/',
+            path: path,
+            contents: new Buffer(content)
+        });
+    }
 
     describe('in buffer mode', function() {
 
         it('should assign urls, truncating "index"', function(done) {
             var stream = ssg();
-            var home = getMarkdownFile('test/index.html', 'home');
-            var page1 = getMarkdownFile('test/hello.html', 'page');
-            var page2 = getMarkdownFile('test/foo/index.html', 'section index');
-            var childPage1 = getMarkdownFile('test/foo/bar.html', 'section page');
+            var home = mockFile('test/index.html', 'home');
+            var page1 = mockFile('test/hello.html', 'page');
+            var page2 = mockFile('test/foo/index.html', 'section index');
+            var childPage1 = mockFile('test/foo/bar.html', 'section page');
 
             stream.on('end', function() {
                 expect(home.data.url).to.equal('/');
@@ -44,10 +44,10 @@ describe('gulp-ssg()', function() {
 
         it('should give each a file a pointer to the root', function(done) {
             var stream = ssg();
-            var home = getMarkdownFile('test/index.html', 'home');
-            var page = getMarkdownFile('test/hello.html', 'page');
-            var sectionIndex = getMarkdownFile('test/foo/index.html', 'section index');
-            var sectionPage = getMarkdownFile('test/foo/bar.html', 'section page');
+            var home = mockFile('test/index.html', 'home');
+            var page = mockFile('test/hello.html', 'page');
+            var sectionIndex = mockFile('test/foo/index.html', 'section index');
+            var sectionPage = mockFile('test/foo/bar.html', 'section page');
 
             stream.on('end', function() {
                 expect(home.data.root.data.url).to.equal('/');
@@ -66,10 +66,10 @@ describe('gulp-ssg()', function() {
 
         it('should give each a file a pointer to their parent', function(done) {
             var stream = ssg();
-            var home = getMarkdownFile('test/index.html', 'home');
-            var page1 = getMarkdownFile('test/hello.html', 'page');
-            var page2 = getMarkdownFile('test/foo/index.html', 'section index');
-            var childPage1 = getMarkdownFile('test/foo/bar.html', 'section page');
+            var home = mockFile('test/index.html', 'home');
+            var page1 = mockFile('test/hello.html', 'page');
+            var page2 = mockFile('test/foo/index.html', 'section index');
+            var childPage1 = mockFile('test/foo/bar.html', 'section page');
 
             stream.on('end', function() {
                 expect(home.data.parent).to.equal(null);
@@ -88,10 +88,10 @@ describe('gulp-ssg()', function() {
 
         it('should give each a file a pointer to their children', function(done) {
             var stream = ssg();
-            var home = getMarkdownFile('test/index.html', 'home');
-            var page1 = getMarkdownFile('test/hello.html', 'page');
-            var page2 = getMarkdownFile('test/foo/index.html', 'section index');
-            var childPage1 = getMarkdownFile('test/foo/bar.html', 'section page');
+            var home = mockFile('test/index.html', 'home');
+            var page1 = mockFile('test/hello.html', 'page');
+            var page2 = mockFile('test/foo/index.html', 'section index');
+            var childPage1 = mockFile('test/foo/bar.html', 'section page');
 
             stream.on('end', function() {
                 expect(home.data.children[0].data.url).to.equal('/foo/');
@@ -112,10 +112,10 @@ describe('gulp-ssg()', function() {
         it('should give each a file a pointer to their siblings', function(done) {
 
             var stream = ssg();
-            var home = getMarkdownFile('test/index.html', 'home');
-            var page1 = getMarkdownFile('test/hello.html', 'page');
-            var page2 = getMarkdownFile('test/foo/index.html', 'section index');
-            var childPage1 = getMarkdownFile('test/foo/bar.html', 'section page');
+            var home = mockFile('test/index.html', 'home');
+            var page1 = mockFile('test/hello.html', 'page');
+            var page2 = mockFile('test/foo/index.html', 'section index');
+            var childPage1 = mockFile('test/foo/bar.html', 'section page');
 
             stream.on('end', function() {
                 expect(home.data.siblings.length).to.equal(0);
@@ -142,10 +142,10 @@ describe('gulp-ssg()', function() {
             };
 
             var stream = ssg(options);
-            var home = getMarkdownFile('test/index.html', 'home');
-            var page1 = getMarkdownFile('test/hello.html', 'page');
-            var page2 = getMarkdownFile('test/foo/index.html', 'section index');
-            var childPage1 = getMarkdownFile('test/foo/bar.html', 'section page');
+            var home = mockFile('test/index.html', 'home');
+            var page1 = mockFile('test/hello.html', 'page');
+            var page2 = mockFile('test/foo/index.html', 'section index');
+            var childPage1 = mockFile('test/foo/bar.html', 'section page');
 
             stream.on('end', function() {
                 expect(home.data.url).to.equal('/path/to/site/');
@@ -167,10 +167,10 @@ describe('gulp-ssg()', function() {
                 baseUrl: '/path/to/site/'
             };
             var stream = ssg(options);
-            var home = getMarkdownFile('test/index.html', 'home');
-            var page1 = getMarkdownFile('test/hello.html', 'page');
-            var page2 = getMarkdownFile('test/foo/index.html', 'section index');
-            var childPage1 = getMarkdownFile('test/foo/bar.html', 'section page');
+            var home = mockFile('test/index.html', 'home');
+            var page1 = mockFile('test/hello.html', 'page');
+            var page2 = mockFile('test/foo/index.html', 'section index');
+            var childPage1 = mockFile('test/foo/bar.html', 'section page');
 
             stream.on('end', function() {
                 expect(home.data.url).to.equal('/path/to/site/');
@@ -189,12 +189,12 @@ describe('gulp-ssg()', function() {
 
         it('should sort by url by default', function(done) {
             var stream = ssg();
-            var home = getMarkdownFile('test/index.html', 'home');
-            var page1 = getMarkdownFile('test/xyz.html', 'page');
-            var page2 = getMarkdownFile('test/abc.html', 'page');
-            var page3 = getMarkdownFile('test/foo/index.html', 'section index');
-            var childPage1 = getMarkdownFile('test/foo/10-hello.html', 'child page');
-            var childPage2 = getMarkdownFile('test/foo/05-goodbye.html', 'child page');
+            var home = mockFile('test/index.html', 'home');
+            var page1 = mockFile('test/xyz.html', 'page');
+            var page2 = mockFile('test/abc.html', 'page');
+            var page3 = mockFile('test/foo/index.html', 'section index');
+            var childPage1 = mockFile('test/foo/10-hello.html', 'child page');
+            var childPage2 = mockFile('test/foo/05-goodbye.html', 'child page');
 
             stream.on('end', function() {
                 var urls = home.data.children.map(function(file) {
@@ -229,13 +229,13 @@ describe('gulp-ssg()', function() {
                 sort: 'order'
             };
             var stream = ssg(options);
-            var home = getMarkdownFile('test/index.html', 'home');
-            var page1 = getMarkdownFile('test/xyz.html', 'page');
-            var page2 = getMarkdownFile('test/abc.html', 'page');
-            var page3 = getMarkdownFile('test/def.html', 'page');
-            var page4 = getMarkdownFile('test/foo/index.html', 'section index');
-            var childPage1 = getMarkdownFile('test/foo/10-hello.html', 'section page');
-            var childPage2 = getMarkdownFile('test/foo/05-goodbye.html', 'section page');
+            var home = mockFile('test/index.html', 'home');
+            var page1 = mockFile('test/xyz.html', 'page');
+            var page2 = mockFile('test/abc.html', 'page');
+            var page3 = mockFile('test/def.html', 'page');
+            var page4 = mockFile('test/foo/index.html', 'section index');
+            var childPage1 = mockFile('test/foo/10-hello.html', 'section page');
+            var childPage2 = mockFile('test/foo/05-goodbye.html', 'section page');
 
             page1.data = { order: 1 };
             page2.data = { order: 12 };
