@@ -12,6 +12,7 @@ describe('gulp-ssg()', function() {
 	/* jshint camelcase: false */
 
     function mockFile(path, content) {
+		content = content || 'test';
         return new File({
             cwd: '',
             base: 'test/',
@@ -24,10 +25,10 @@ describe('gulp-ssg()', function() {
 
         it('should assign urls, truncating "index"', function(done) {
             var stream = ssg();
-            var h = mockFile('test/index.html', 'home');
-            var p1 = mockFile('test/hello.html', 'page');
-            var p2 = mockFile('test/foo/index.html', 'section index');
-            var p2_1 = mockFile('test/foo/bar.html', 'section page');
+            var h = mockFile('test/index.html');
+            var p1 = mockFile('test/hello.html');
+            var p2 = mockFile('test/foo/index.html');
+            var p2_1 = mockFile('test/foo/bar.html');
 
             stream.on('end', function() {
                 expect(h.data.url).to.equal('/');
@@ -46,10 +47,10 @@ describe('gulp-ssg()', function() {
 
         it('should give each a file a pointer to the root', function(done) {
             var stream = ssg();
-            var h = mockFile('test/index.html', 'home');
-            var p1 = mockFile('test/hello.html', 'page');
-            var p2 = mockFile('test/foo/index.html', 'section index');
-            var p2_1 = mockFile('test/foo/bar.html', 'section page');
+            var h = mockFile('test/index.html');
+            var p1 = mockFile('test/hello.html');
+            var p2 = mockFile('test/foo/index.html');
+            var p2_1 = mockFile('test/foo/bar.html');
 
             stream.on('end', function() {
                 expect(h.data.root.data.url).to.equal('/');
@@ -68,10 +69,10 @@ describe('gulp-ssg()', function() {
 
         it('should give each a file a pointer to their parent', function(done) {
             var stream = ssg();
-            var h = mockFile('test/index.html', 'home');
-            var p1 = mockFile('test/hello.html', 'page');
-            var p2 = mockFile('test/foo/index.html', 'section index');
-            var p2_1 = mockFile('test/foo/bar.html', 'section page');
+            var h = mockFile('test/index.html');
+            var p1 = mockFile('test/hello.html');
+            var p2 = mockFile('test/foo/index.html');
+            var p2_1 = mockFile('test/foo/bar.html');
 
             stream.on('end', function() {
                 expect(h.data.parent).to.equal(null);
@@ -90,10 +91,10 @@ describe('gulp-ssg()', function() {
 
         it('should give each a file a pointer to their children', function(done) {
             var stream = ssg();
-            var h = mockFile('test/index.html', 'home');
-            var p1 = mockFile('test/hello.html', 'page');
-            var p2 = mockFile('test/foo/index.html', 'section index');
-            var p2_1 = mockFile('test/foo/bar.html', 'section page');
+            var h = mockFile('test/index.html');
+            var p1 = mockFile('test/hello.html');
+            var p2 = mockFile('test/foo/index.html');
+            var p2_1 = mockFile('test/foo/bar.html');
 
             stream.on('end', function() {
                 expect(h.data.children[0].data.url).to.equal('/foo/');
@@ -114,10 +115,10 @@ describe('gulp-ssg()', function() {
         it('should give each a file a pointer to their siblings', function(done) {
 
             var stream = ssg();
-            var h = mockFile('test/index.html', 'home');
-            var p1 = mockFile('test/hello.html', 'page');
-            var p2 = mockFile('test/foo/index.html', 'section index');
-            var p2_1 = mockFile('test/foo/bar.html', 'section page');
+            var h = mockFile('test/index.html');
+            var p1 = mockFile('test/hello.html');
+            var p2 = mockFile('test/foo/index.html');
+            var p2_1 = mockFile('test/foo/bar.html');
 
             stream.on('end', function() {
                 expect(h.data.siblings.length).to.equal(0);
@@ -142,14 +143,14 @@ describe('gulp-ssg()', function() {
 
             var stream = ssg();
             // Files named like level[n]page[n]
-            var h = mockFile('test/index.html', 'home');
-            var p1 = mockFile('test/hello.html', 'page');
-            var p2 = mockFile('test/foo/index.html', 'page');
-            var p2_1 = mockFile('test/foo/bar.html', 'page');
-            var p2_2 = mockFile('test/foo/qux.html', 'page');
-            var p2_3 = mockFile('test/foo/fred/index.html', 'page');
-            var p2_3_1 = mockFile('test/foo/fred/foo/index.html', 'page');
-            var p2_3_2 = mockFile('test/foo/fred/bar.html', 'page');
+            var h = mockFile('test/index.html');
+            var p1 = mockFile('test/hello.html');
+            var p2 = mockFile('test/foo/index.html');
+            var p2_1 = mockFile('test/foo/bar.html');
+            var p2_2 = mockFile('test/foo/qux.html');
+            var p2_3 = mockFile('test/foo/fred/index.html');
+            var p2_3_1 = mockFile('test/foo/fred/foo/index.html');
+            var p2_3_2 = mockFile('test/foo/fred/bar.html');
 
             stream.on('end', function() {
 
@@ -201,10 +202,10 @@ describe('gulp-ssg()', function() {
             };
 
             var stream = ssg(options);
-            var h = mockFile('test/index.html', 'home');
-            var p1 = mockFile('test/hello.html', 'page');
-            var p2 = mockFile('test/foo/index.html', 'section index');
-            var p2_1 = mockFile('test/foo/bar.html', 'section page');
+            var h = mockFile('test/index.html');
+            var p1 = mockFile('test/hello.html');
+            var p2 = mockFile('test/foo/index.html');
+            var p2_1 = mockFile('test/foo/bar.html');
 
             stream.on('end', function() {
                 expect(h.data.url).to.equal('/path/to/site/');
@@ -226,10 +227,10 @@ describe('gulp-ssg()', function() {
                 baseUrl: '/path/to/site/'
             };
             var stream = ssg(options);
-            var h = mockFile('test/index.html', 'home');
-            var p1 = mockFile('test/hello.html', 'page');
-            var p2 = mockFile('test/foo/index.html', 'section index');
-            var p2_1 = mockFile('test/foo/bar.html', 'section page');
+            var h = mockFile('test/index.html');
+            var p1 = mockFile('test/hello.html');
+            var p2 = mockFile('test/foo/index.html');
+            var p2_1 = mockFile('test/foo/bar.html');
 
             stream.on('end', function() {
                 expect(h.data.url).to.equal('/path/to/site/');
@@ -248,10 +249,10 @@ describe('gulp-ssg()', function() {
 
         it('should sort by url by default', function(done) {
             var stream = ssg();
-            var h = mockFile('test/index.html', 'home');
-            var p1 = mockFile('test/xyz.html', 'page');
-            var p2 = mockFile('test/abc.html', 'page');
-            var p3 = mockFile('test/foo/index.html', 'section index');
+            var h = mockFile('test/index.html');
+            var p1 = mockFile('test/xyz.html');
+            var p2 = mockFile('test/abc.html');
+            var p3 = mockFile('test/foo/index.html');
             var p3_1 = mockFile('test/foo/10-hello.html', 'child page');
             var p3_2 = mockFile('test/foo/05-goodbye.html', 'child page');
 
@@ -288,13 +289,13 @@ describe('gulp-ssg()', function() {
                 sort: 'order'
             };
             var stream = ssg(options);
-            var h = mockFile('test/index.html', 'home');
-            var p1 = mockFile('test/xyz.html', 'page');
-            var p2 = mockFile('test/abc.html', 'page');
-            var p3 = mockFile('test/def.html', 'page');
-            var p4 = mockFile('test/foo/index.html', 'section index');
-            var p4_1 = mockFile('test/foo/10-hello.html', 'section page');
-            var p4_2 = mockFile('test/foo/05-goodbye.html', 'section page');
+            var h = mockFile('test/index.html');
+            var p1 = mockFile('test/xyz.html');
+            var p2 = mockFile('test/abc.html');
+            var p3 = mockFile('test/def.html');
+            var p4 = mockFile('test/foo/index.html');
+            var p4_1 = mockFile('test/foo/10-hello.html');
+            var p4_2 = mockFile('test/foo/05-goodbye.html');
 
             p1.data = { order: 1 };
             p2.data = { order: 12 };
