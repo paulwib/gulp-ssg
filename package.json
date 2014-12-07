@@ -4,7 +4,7 @@
   "main": "index.js",
   "homepage": "https://github.com/paulwib/gulp-ssg",
   "bugs": "https://github.com/paulwib/gulp-ssg/issues",
-  "description": "Generate a static site with gulpjs",
+  "description": "Generate a static website content tree",
   "directories": {
     "test": "test"
   },
@@ -23,15 +23,8 @@
   },
   "devDependencies": {
     "chai": "~1.9.0",
-    "event-stream": "^3.1.7",
-    "front-matter": "^0.2.0",
-    "gulp": "~3.8.9",
-    "gulp-data": "^1.0.2",
-    "hogan.js": "^3.0.2",
-    "marked": "^0.3.2",
     "mocha": "~2.0.1",
-    "mversion": "^1.6.1",
-    "should": "~4.1.0"
+    "mversion": "^1.6.1"
   },
   "engines": {
     "node": ">=0.9"
