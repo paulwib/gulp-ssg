@@ -11,9 +11,7 @@ var _ = require('lodash');
  * the directories. Each property points to other file objects.
  *
  * Values are assigned to the `data` property of each file. Follows `gulp-data` convention so
- * won't override any other data added to the file.
- *
- * The URL will have any trailing `index.html` removed. An additional `baseUrl` can be added.
+ * won't override any other data already added to the file.
  *
  * @param array options.baseUrl             The base url of the final website
  * @param array options.sort                The property to sort by
@@ -34,7 +32,7 @@ module.exports = function(options) {
     /**
      * Add URL and buffer all files up into an object
      *
-     * @param object file
+     * @param {object} file
      */
     function bufferContents(file) {
         if (file.isNull()) {
@@ -61,9 +59,9 @@ module.exports = function(options) {
             var file = buffer[url];
             file.data = _.extend({
                 root: buffer['/'],
-                parent: parent(url, buffer),
-                children: children(url, buffer),
-                siblings: siblings(url, buffer)
+                parent: parent(url),
+                children: children(url),
+                siblings: siblings(url)
             }, file.data || {});
 
             this.emit('data', file);
@@ -73,7 +71,12 @@ module.exports = function(options) {
         this.emit('end');
     }
 
-    function parent(url, buffer) {
+    /**
+     * Get the parent file for a given URL from the buffer
+     *
+     * @param {string} url
+     */
+    function parent(url) {
         if (url === options.baseUrl) {
             return null;
         }
@@ -87,7 +90,12 @@ module.exports = function(options) {
         return buffer[parentUrl] || null;
     }
 
-    function children(url, buffer) {
+    /**
+     * Get the child files for a given URL from the buffer
+     *
+     * @param {string} url
+     */
+    function children(url) {
         // Do URLs start with same path and not have further path tokens?
         var rx = new RegExp('^' + url + '[^/]+/?$'),
             ch = [];
@@ -104,17 +112,32 @@ module.exports = function(options) {
         return ch;
     }
 
-    function siblings(url, buffer) {
+    /**
+     * Get the sibling files for a given URL from the buffer
+     *
+     * @param {string} url
+     */
+    function siblings(url) {
         if (url === options.baseUrl) {
             return [];
         }
-        return children(parent(url, buffer).data.url, buffer);
+        return children(parent(url).data.url);
     }
 
+    /**
+     * Generate a URL for the file, adding base url and trimming any index.html
+     *
+     * @param {object} file
+     */
     function url(file) {
         return options.baseUrl + file.relative.replace(/index.html$/, '');
     }
 
+    /**
+     * Sort an array of files on `options.sort` property of `data`
+     *
+     * @param {array} files
+     */
     function sort(files) {
         if (!options.sort) {
             return;
