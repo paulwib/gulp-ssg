@@ -105,23 +105,8 @@ describe('gulp-ssg()', function() {
             stream.end();
         });*/
 
-        /*it('should not override properties assigned to the site', function(done) {
-            var website = { title: 'My Site' };
-            var stream = ssg(website);
-            var file1 = getMarkdownFile('test/index.md', 'home');
-
-            stream.on('end', function() {
-                expect(website.title).to.equal('My Site');
-                done();
-            });
-
-            stream.write(file1);
-            stream.end();
-        });*/
-
         it('should assign urls, truncating "index"', function(done) {
-            var website = {};
-            var stream = ssg(website);
+            var stream = ssg();
             var home = getMarkdownFile('test/index.html', 'home');
             var page = getMarkdownFile('test/hello.html', 'page');
             var sectionIndex = getMarkdownFile('test/foo/index.html', 'section index');
@@ -143,8 +128,7 @@ describe('gulp-ssg()', function() {
         });
 
         it('should give each a file a pointer to the root', function(done) {
-            var website = {};
-            var stream = ssg(website);
+            var stream = ssg();
             var home = getMarkdownFile('test/index.html', 'home');
             var page = getMarkdownFile('test/hello.html', 'page');
             var sectionIndex = getMarkdownFile('test/foo/index.html', 'section index');
@@ -166,8 +150,7 @@ describe('gulp-ssg()', function() {
         });
 
         it('should give each a file a pointer to their parent', function(done) {
-            var website = {};
-            var stream = ssg(website);
+            var stream = ssg();
             var home = getMarkdownFile('test/index.html', 'home');
             var page1 = getMarkdownFile('test/hello.html', 'page');
             var page2 = getMarkdownFile('test/foo/index.html', 'section index');
@@ -189,9 +172,7 @@ describe('gulp-ssg()', function() {
         });
 
         it('should give each a file a pointer to their children', function(done) {
-
-            var website = {};
-            var stream = ssg(website);
+            var stream = ssg();
             var home = getMarkdownFile('test/index.html', 'home');
             var page1 = getMarkdownFile('test/hello.html', 'page');
             var page2 = getMarkdownFile('test/foo/index.html', 'section index');
@@ -215,8 +196,7 @@ describe('gulp-ssg()', function() {
 
         it('should give each a file a pointer to their siblings', function(done) {
 
-            var website = {};
-            var stream = ssg(website);
+            var stream = ssg();
             var home = getMarkdownFile('test/index.html', 'home');
             var page1 = getMarkdownFile('test/hello.html', 'page');
             var page2 = getMarkdownFile('test/foo/index.html', 'section index');
@@ -241,39 +221,15 @@ describe('gulp-ssg()', function() {
             stream.end();
         });
 
-        /*it('should assign section urls', function(done) {
-            var website = {};
-            var stream = ssg(website);
-            var home = getMarkdownFile('test/index.md', 'home');
-            var page = getMarkdownFile('test/hello.md', 'page');
-            var sectionIndex = getMarkdownFile('test/foo/index.md', 'section index');
-            var sectionPage = getMarkdownFile('test/foo/bar.md', 'sectionPage');
-
-            stream.on('end', function() {
-                expect(home.data.sectionUrl).to.equal('/');
-                expect(page.data.sectionUrl).to.equal('/');
-                expect(sectionIndex.data.sectionUrl).to.equal('/foo/');
-                expect(sectionPage.data.sectionUrl).to.equal('/foo/');
-                done();
-            });
-
-            stream.write(home);
-            stream.write(page);
-            stream.write(sectionIndex);
-            stream.write(sectionPage);
-            stream.end();
-        });*/
-
-        /*it('should use the specified base url', function(done) {
-            var website = {};
+        it('should use the specified base url', function(done) {
             var options = {
                 baseUrl: '/path/to/site'
             };
-            var stream = ssg(website, options);
-            var home = getMarkdownFile('test/index.md', 'home');
-            var page = getMarkdownFile('test/hello.md', 'page');
-            var sectionIndex = getMarkdownFile('test/foo/index.md', 'section index');
-            var sectionPage = getMarkdownFile('test/foo/bar.md', 'section page');
+            /*var stream = ssg(options);
+            var home = getMarkdownFile('test/index.html', 'home');
+            var page = getMarkdownFile('test/hello.html', 'page');
+            var sectionIndex = getMarkdownFile('test/foo/index.html', 'section index');
+            var sectionPage = getMarkdownFile('test/foo/bar.html', 'section page');
 
             stream.on('end', function() {
                 expect(home.data.url).to.equal('/path/to/site/');
@@ -287,8 +243,28 @@ describe('gulp-ssg()', function() {
             stream.write(page);
             stream.write(sectionIndex);
             stream.write(sectionPage);
+            stream.end();*/
+
+            var stream = ssg(options);
+            var home = getMarkdownFile('test/index.html', 'home');
+            var page1 = getMarkdownFile('test/hello.html', 'page');
+            var page2 = getMarkdownFile('test/foo/index.html', 'section index');
+            var childPage1 = getMarkdownFile('test/foo/bar.html', 'section page');
+
+            stream.on('end', function() {
+                expect(home.data.url).to.equal('/path/to/site/');
+                expect(page1.data.url).to.equal('/path/to/site/hello.html');
+                expect(page2.data.url).to.equal('/path/to/site/foo/');
+                expect(childPage1.data.url).to.equal('/path/to/site/foo/bar.html');
+                done();
+            });
+
+            stream.write(home);
+            stream.write(page1);
+            stream.write(page2);
+            stream.write(childPage1);
             stream.end();
-        });*/
+        });
 
         /*it('should remove a trailing slash from the specified base url', function(done) {
             var website = {};

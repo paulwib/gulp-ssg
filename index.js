@@ -19,17 +19,15 @@ var _ = require('lodash');
  * @param array options.sort                The property to sort by
  * @return stream
  */
-module.exports = function(website, options) {
+module.exports = function(options) {
+    var buffer = {};
     options = _.extend({
         baseUrl: '',
         sort: 'url'
     }, options || {});
 
-    // Remove trailing slash from baseUrl
-    if (options.baseUrl && options.baseUrl.length > 1 && options.baseUrl.substr(-1) === '/') {
-        options.baseUrl = options.baseUrl.substr(0, options.baseUrl.length - 1);
-    }
-    var buffer = {};
+    // Normalize trailing slash on base URL
+    options.baseUrl = options.baseUrl.replace(/\/$/, '') + '/';
 
     return through(bufferContents, endStream);
 
@@ -45,7 +43,6 @@ module.exports = function(website, options) {
         if (file.isStream()) {
             return this.emit('error', new PluginError('gulp-ssg',  'Streaming not supported'));
         }
-
         var fileUrl = url(file);
         file.data = _.extend({ url: fileUrl }, file.data || {});
         buffer[fileUrl] = file;
@@ -78,8 +75,6 @@ module.exports = function(website, options) {
             });
         }*/
 
-        /*website.map = treeify(options.baseUrl, buffer);
-        addSectionToFiles(website.map);*/
         Object.keys(buffer).forEach(function(url) {
             var file = buffer[url];
             file.data = _.extend({
@@ -95,7 +90,7 @@ module.exports = function(website, options) {
     }
 
     function parent(url, buffer) {
-        if (url === '/') {
+        if (url === options.baseUrl) {
             return null;
         }
         var parentUrl = url
@@ -121,14 +116,14 @@ module.exports = function(website, options) {
     }
 
     function siblings(url, buffer) {
-        if (url === '/') {
+        if (url === options.baseUrl) {
             return [];
         }
         return children(parent(url, buffer).data.url, buffer);
     }
 
     function url(file) {
-        return '/' + file.relative.replace(/index.html$/, '');
+        return options.baseUrl + file.relative.replace(/index.html$/, '');
     }
 
 };
