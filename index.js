@@ -1,41 +1,40 @@
 'use strict';
 
 var through = require('through');
-var os = require('os');
 var gutil = require('gulp-util');
 var PluginError = gutil.PluginError;
 var File = gutil.File;
 var _ = require('lodash');
-var path = require('path');
 
 /**
- * Convert text files to a website with nice urls, extra file.data and a website.map tree of content
+ * Add url, root, parent, siblings and children properties to files, reflecting the structure of
+ * the directories. Each property points to other file objects.
  *
- * @param object website                    An object to attach the map to, reference added to each file
+ * Values are assigned to the `data` property of each file. Follows `gulp-data` convention so
+ * won't override any other data added to the file.
+ *
+ * The URL will have any trailing `index.html` removed. An additional `baseUrl` can be added.
+ *
  * @param array options.baseUrl             The base url of the final website
  * @param array options.sort                The property to sort by
- * @param array options.sectionProperties   List of properties to copy from index file to section
  * @return stream
  */
 module.exports = function(website, options) {
-    website = website || {};
     options = _.extend({
         baseUrl: '',
-        sort: 'url',
-        sectionProperties: []
+        sort: 'url'
     }, options || {});
 
-    // remove trailing slash from baseUrl
+    // Remove trailing slash from baseUrl
     if (options.baseUrl && options.baseUrl.length > 1 && options.baseUrl.substr(-1) === '/') {
         options.baseUrl = options.baseUrl.substr(0, options.baseUrl.length - 1);
     }
-
-    var buffer = [];
+    var buffer = {};
 
     return through(bufferContents, endStream);
 
     /**
-     * Rename each file and add properties to `data`
+     * Add URL and buffer all files up into an object
      *
      * @param object file
      */
@@ -47,22 +46,9 @@ module.exports = function(website, options) {
             return this.emit('error', new PluginError('gulp-ssg',  'Streaming not supported'));
         }
 
-        var basename = path.basename(file.relative, path.extname(file.path)),
-            isIndex = basename === 'index',
-            originalDir = rename(file),
-            isHome = isIndex && originalDir === '.',
-            fileUrl = isHome ? options.baseUrl + '/' : url(file, options.baseUrl);
-
-        file.data = _.extend({
-            website: website,
-            name: basename,
-            isIndex: isIndex,
-            isHome: isHome,
-            url: fileUrl,
-            sectionUrl: sectionUrl(fileUrl, isIndex)
-        }, file.data || {});
-
-        buffer.push(file);
+        var fileUrl = url(file);
+        file.data = _.extend({ url: fileUrl }, file.data || {});
+        buffer[fileUrl] = file;
     }
 
     /**
@@ -74,7 +60,7 @@ module.exports = function(website, options) {
             return this.emit('end');
         }
 
-        if (options.sort) {
+        /*if (options.sort) {
             buffer.sort(function(a, b) {
                 var aDepth = a.data.url.split('/').length;
                 var bDepth = b.data.url.split('/').length;
@@ -90,171 +76,59 @@ module.exports = function(website, options) {
 
                 return a.data[options.sort] >= b.data[options.sort] ? 1 : -1;
             });
-        }
+        }*/
 
-        website.map = treeify(options.baseUrl, buffer);
-        addSectionToFiles(website.map);
-
-        buffer.forEach(function(file) {
+        /*website.map = treeify(options.baseUrl, buffer);
+        addSectionToFiles(website.map);*/
+        Object.keys(buffer).forEach(function(url) {
+            var file = buffer[url];
+            file.data = _.extend({
+                root: buffer['/'],
+                parent: parent(url, buffer),
+                children: children(url, buffer),
+                siblings: siblings(url, buffer)
+            }, file.data || {});
             this.emit('data', file);
         }.bind(this));
 
         this.emit('end');
     }
 
-    /**
-     * Copy options.sectionProperties from file data to section
-     *
-     * @param object data
-     * @return object
-     */
-    function copySectionProperties(data) {
-        if (typeof options.sectionProperties.forEach !== 'function') {
-            return;
+    function parent(url, buffer) {
+        if (url === '/') {
+            return null;
         }
-        var props = {};
-        options.sectionProperties.forEach(function(prop) {
-            if (typeof data[prop] !== 'undefined') {
-                props[prop] = data[prop];
-            }
-        });
+        var parentUrl = url
+            .replace(/\..+$/, '')
+            .replace(/\/$/, '')
+            .split('/')
+            .slice(0, -1)
+            .join('/') + '/';
 
-        return props;
+        return buffer[parentUrl] || null;
     }
 
-    /**
-     * Converts flat files into a tree structure of sections
-     *
-     * @param string baseUrl
-     * @return object
-     */
-    function treeify(baseUrl) {
-        var currentList,
-            foundAtIndex,
-            baseUrlReplace = new RegExp('^' + baseUrl),
-            sectionsToFiles = mapSectionsToFiles(buffer),
-            contentTree = {
-                sections: [],
-                files: sectionsToFiles[baseUrl + '/']
-            };
+    function children(url, buffer) {
+        // Do URLs start with same path and not have further path tokens?
+        var rx = new RegExp('^' + url + '[^/]+/?$');
 
-        buffer.forEach(function(file) {
-
-            if (file.data.isHome) {
-                contentTree.name = 'root';
-                contentTree.url = file.data.url;
-                contentTree = _.extend(contentTree, copySectionProperties(file.data));
-                return;
+        return Object.keys(buffer).reduce(function(ch, val) {
+            if (rx.test(val)) {
+                ch.push(buffer[val]);
             }
-
-            if (!file.data.isIndex) {
-                return;
-            }
-
-            currentList = contentTree.sections;
-            file.data.url.replace(baseUrlReplace, '').split('/').filter(function(t) {
-                return t !== '';
-            }).forEach(function(token, index) {
-                foundAtIndex = -1;
-
-                currentList.forEach(function(item, index) {
-                    if (item.name === token) {
-                        foundAtIndex = index;
-                        currentList = currentList[index].sections;
-                    }
-                });
-
-                if (foundAtIndex === -1) {
-                    currentList.push(_.extend({
-                        name: token,
-                        url: file.data.url,
-                        sections: [],
-                        files: sectionsToFiles[file.data.sectionUrl]
-                    }, copySectionProperties(file.data)));
-
-                    currentList = currentList[currentList.length-1].sections;
-                }
-            });
-        });
-
-        return contentTree;
+            return ch;
+        }, []);
     }
 
-    /**
-     * Map each section URL to a list of files
-     *
-     * @return object
-     */
-    function mapSectionsToFiles() {
-        var map = {};
-        buffer.forEach(function(file) {
-            if (typeof map[file.data.sectionUrl] === 'undefined') {
-                map[file.data.sectionUrl] = [];
-            }
-            map[file.data.sectionUrl].push(file);
-        });
-
-        return map;
-    }
-
-    /**
-     * Give each file data a reference back to it's section
-     *
-     * @param object map The website map
-     */
-    function addSectionToFiles(map) {
-        if (!map.files.length) {
-            return;
+    function siblings(url, buffer) {
+        if (url === '/') {
+            return [];
         }
-        map.files.forEach(function(file) {
-            file.data.section = map;
-            if (!map.sections.length) {
-                return;
-            }
-        });
-        // Recurse over nested sections
-        map.sections.forEach(function(section) {
-            addSectionToFiles(section);
-        });
+        return children(parent(url, buffer).data.url, buffer);
     }
 
-    /**
-     * Rename the file to path/to/index.html
-     *
-     * @param object file
-     * @return string The original directory name
-     */
-    function rename(file) {
-        var dirname = path.dirname(file.relative),
-            basename = path.basename(file.relative, path.extname(file.relative));
-
-        file.path = file.base +
-            (basename !== 'index' ? dirname + '/' + basename : dirname) +
-            '/index.html';
-
-        return dirname;
-    }
-
-    /**
-     * Generate URL from renamed path
-     *
-     * @param object file
-     * @param string baseUrl
-     * @return string url
-     */
-    function url(file, baseUrl) {
-        var dirname = path.dirname(file.relative).replace(/\\/g, '/');
-        return baseUrl + '/' + dirname.replace(/^\.\//, '') + '/';
-    }
-
-    /**
-     * Generate a section URL from file url
-     *
-     * @param object file
-     * @return string url
-     */
-    function sectionUrl(url, isIndex) {
-        return isIndex ? url : url.split('/').slice(0, -2).join('/') + '/';
+    function url(file) {
+        return '/' + file.relative.replace(/index.html$/, '');
     }
 
 };
