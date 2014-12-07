@@ -9,6 +9,8 @@ var Buffer = require('buffer').Buffer;
 
 describe('gulp-ssg()', function() {
 
+	/* jshint camelcase: false */
+
     function mockFile(path, content) {
         return new File({
             cwd: '',
@@ -22,123 +24,122 @@ describe('gulp-ssg()', function() {
 
         it('should assign urls, truncating "index"', function(done) {
             var stream = ssg();
-            var home = mockFile('test/index.html', 'home');
-            var page1 = mockFile('test/hello.html', 'page');
-            var page2 = mockFile('test/foo/index.html', 'section index');
-            var childPage1 = mockFile('test/foo/bar.html', 'section page');
+            var h = mockFile('test/index.html', 'home');
+            var p1 = mockFile('test/hello.html', 'page');
+            var p2 = mockFile('test/foo/index.html', 'section index');
+            var p2_1 = mockFile('test/foo/bar.html', 'section page');
 
             stream.on('end', function() {
-                expect(home.data.url).to.equal('/');
-                expect(page1.data.url).to.equal('/hello.html');
-                expect(page2.data.url).to.equal('/foo/');
-                expect(childPage1.data.url).to.equal('/foo/bar.html');
+                expect(h.data.url).to.equal('/');
+                expect(p1.data.url).to.equal('/hello.html');
+                expect(p2.data.url).to.equal('/foo/');
+                expect(p2_1.data.url).to.equal('/foo/bar.html');
                 done();
             });
 
-            stream.write(home);
-            stream.write(page1);
-            stream.write(page2);
-            stream.write(childPage1);
+            stream.write(h);
+            stream.write(p1);
+            stream.write(p2);
+            stream.write(p2_1);
             stream.end();
         });
 
         it('should give each a file a pointer to the root', function(done) {
             var stream = ssg();
-            var home = mockFile('test/index.html', 'home');
-            var page = mockFile('test/hello.html', 'page');
-            var sectionIndex = mockFile('test/foo/index.html', 'section index');
-            var sectionPage = mockFile('test/foo/bar.html', 'section page');
+            var h = mockFile('test/index.html', 'home');
+            var p1 = mockFile('test/hello.html', 'page');
+            var p2 = mockFile('test/foo/index.html', 'section index');
+            var p2_1 = mockFile('test/foo/bar.html', 'section page');
 
             stream.on('end', function() {
-                expect(home.data.root.data.url).to.equal('/');
-                expect(page.data.root.data.url).to.equal('/');
-                expect(sectionIndex.data.root.data.url).to.equal('/');
-                expect(sectionPage.data.root.data.url).to.equal('/');
+                expect(h.data.root.data.url).to.equal('/');
+                expect(p1.data.root.data.url).to.equal('/');
+                expect(p2.data.root.data.url).to.equal('/');
+                expect(p2_1.data.root.data.url).to.equal('/');
                 done();
             });
 
-            stream.write(home);
-            stream.write(page);
-            stream.write(sectionIndex);
-            stream.write(sectionPage);
+            stream.write(h);
+            stream.write(p1);
+            stream.write(p2);
+            stream.write(p2_1);
             stream.end();
         });
 
         it('should give each a file a pointer to their parent', function(done) {
             var stream = ssg();
-            var home = mockFile('test/index.html', 'home');
-            var page1 = mockFile('test/hello.html', 'page');
-            var page2 = mockFile('test/foo/index.html', 'section index');
-            var childPage1 = mockFile('test/foo/bar.html', 'section page');
+            var h = mockFile('test/index.html', 'home');
+            var p1 = mockFile('test/hello.html', 'page');
+            var p2 = mockFile('test/foo/index.html', 'section index');
+            var p2_1 = mockFile('test/foo/bar.html', 'section page');
 
             stream.on('end', function() {
-                expect(home.data.parent).to.equal(null);
-                expect(page1.data.parent.data.url).to.equal('/');
-                expect(page2.data.parent.data.url).to.equal('/');
-                expect(childPage1.data.parent.data.url).to.equal('/foo/');
+                expect(h.data.parent).to.equal(null);
+                expect(p1.data.parent.data.url).to.equal('/');
+                expect(p2.data.parent.data.url).to.equal('/');
+                expect(p2_1.data.parent.data.url).to.equal('/foo/');
                 done();
             });
 
-            stream.write(home);
-            stream.write(page1);
-            stream.write(page2);
-            stream.write(childPage1);
+            stream.write(h);
+            stream.write(p1);
+            stream.write(p2);
+            stream.write(p2_1);
             stream.end();
         });
 
         it('should give each a file a pointer to their children', function(done) {
             var stream = ssg();
-            var home = mockFile('test/index.html', 'home');
-            var page1 = mockFile('test/hello.html', 'page');
-            var page2 = mockFile('test/foo/index.html', 'section index');
-            var childPage1 = mockFile('test/foo/bar.html', 'section page');
+            var h = mockFile('test/index.html', 'home');
+            var p1 = mockFile('test/hello.html', 'page');
+            var p2 = mockFile('test/foo/index.html', 'section index');
+            var p2_1 = mockFile('test/foo/bar.html', 'section page');
 
             stream.on('end', function() {
-                expect(home.data.children[0].data.url).to.equal('/foo/');
-                expect(home.data.children[1].data.url).to.equal('/hello.html');
-                expect(page1.data.children.length).to.equal(0);
-                expect(page2.data.children[0].data.url).to.equal('/foo/bar.html');
-                expect(childPage1.data.children.length).to.equal(0);
+                expect(h.data.children[0].data.url).to.equal('/foo/');
+                expect(h.data.children[1].data.url).to.equal('/hello.html');
+                expect(p1.data.children.length).to.equal(0);
+                expect(p2.data.children[0].data.url).to.equal('/foo/bar.html');
+                expect(p2_1.data.children.length).to.equal(0);
                 done();
             });
 
-            stream.write(home);
-            stream.write(page1);
-            stream.write(page2);
-            stream.write(childPage1);
+            stream.write(h);
+            stream.write(p1);
+            stream.write(p2);
+            stream.write(p2_1);
             stream.end();
         });
 
         it('should give each a file a pointer to their siblings', function(done) {
 
             var stream = ssg();
-            var home = mockFile('test/index.html', 'home');
-            var page1 = mockFile('test/hello.html', 'page');
-            var page2 = mockFile('test/foo/index.html', 'section index');
-            var childPage1 = mockFile('test/foo/bar.html', 'section page');
+            var h = mockFile('test/index.html', 'home');
+            var p1 = mockFile('test/hello.html', 'page');
+            var p2 = mockFile('test/foo/index.html', 'section index');
+            var p2_1 = mockFile('test/foo/bar.html', 'section page');
 
             stream.on('end', function() {
-                expect(home.data.siblings.length).to.equal(0);
-                expect(page1.data.siblings[0].data.url).to.equal('/foo/');
-                expect(page1.data.siblings[1].data.url).to.equal('/hello.html');
-                expect(page2.data.siblings[0].data.url).to.equal('/foo/');
-                expect(page2.data.siblings[1].data.url).to.equal('/hello.html');
-                expect(childPage1.data.siblings.length).to.equal(1);
+                expect(h.data.siblings.length).to.equal(0);
+                expect(p1.data.siblings[0].data.url).to.equal('/foo/');
+                expect(p1.data.siblings[1].data.url).to.equal('/hello.html');
+                expect(p2.data.siblings[0].data.url).to.equal('/foo/');
+                expect(p2.data.siblings[1].data.url).to.equal('/hello.html');
+                expect(p2_1.data.siblings.length).to.equal(1);
                 // Siblings includes self, so will always be one
-                expect(childPage1.data.siblings[0].data.url).to.equal(childPage1.data.url);
+                expect(p2_1.data.siblings[0].data.url).to.equal(p2_1.data.url);
                 done();
             });
 
-            stream.write(home);
-            stream.write(page1);
-            stream.write(page2);
-            stream.write(childPage1);
+            stream.write(h);
+            stream.write(p1);
+            stream.write(p2);
+            stream.write(p2_1);
             stream.end();
         });
 
         it('should handle deeply nested trees', function(done) {
 
-            /* jshint camelcase: false */
             var stream = ssg();
             // Files named like level[n]page[n]
             var h = mockFile('test/index.html', 'home');
@@ -200,23 +201,23 @@ describe('gulp-ssg()', function() {
             };
 
             var stream = ssg(options);
-            var home = mockFile('test/index.html', 'home');
-            var page1 = mockFile('test/hello.html', 'page');
-            var page2 = mockFile('test/foo/index.html', 'section index');
-            var childPage1 = mockFile('test/foo/bar.html', 'section page');
+            var h = mockFile('test/index.html', 'home');
+            var p1 = mockFile('test/hello.html', 'page');
+            var p2 = mockFile('test/foo/index.html', 'section index');
+            var p2_1 = mockFile('test/foo/bar.html', 'section page');
 
             stream.on('end', function() {
-                expect(home.data.url).to.equal('/path/to/site/');
-                expect(page1.data.url).to.equal('/path/to/site/hello.html');
-                expect(page2.data.url).to.equal('/path/to/site/foo/');
-                expect(childPage1.data.url).to.equal('/path/to/site/foo/bar.html');
+                expect(h.data.url).to.equal('/path/to/site/');
+                expect(p1.data.url).to.equal('/path/to/site/hello.html');
+                expect(p2.data.url).to.equal('/path/to/site/foo/');
+                expect(p2_1.data.url).to.equal('/path/to/site/foo/bar.html');
                 done();
             });
 
-            stream.write(home);
-            stream.write(page1);
-            stream.write(page2);
-            stream.write(childPage1);
+            stream.write(h);
+            stream.write(p1);
+            stream.write(p2);
+            stream.write(p2_1);
             stream.end();
         });
 
@@ -225,37 +226,37 @@ describe('gulp-ssg()', function() {
                 baseUrl: '/path/to/site/'
             };
             var stream = ssg(options);
-            var home = mockFile('test/index.html', 'home');
-            var page1 = mockFile('test/hello.html', 'page');
-            var page2 = mockFile('test/foo/index.html', 'section index');
-            var childPage1 = mockFile('test/foo/bar.html', 'section page');
+            var h = mockFile('test/index.html', 'home');
+            var p1 = mockFile('test/hello.html', 'page');
+            var p2 = mockFile('test/foo/index.html', 'section index');
+            var p2_1 = mockFile('test/foo/bar.html', 'section page');
 
             stream.on('end', function() {
-                expect(home.data.url).to.equal('/path/to/site/');
-                expect(page1.data.url).to.equal('/path/to/site/hello.html');
-                expect(page2.data.url).to.equal('/path/to/site/foo/');
-                expect(childPage1.data.url).to.equal('/path/to/site/foo/bar.html');
+                expect(h.data.url).to.equal('/path/to/site/');
+                expect(p1.data.url).to.equal('/path/to/site/hello.html');
+                expect(p2.data.url).to.equal('/path/to/site/foo/');
+                expect(p2_1.data.url).to.equal('/path/to/site/foo/bar.html');
                 done();
             });
 
-            stream.write(home);
-            stream.write(page1);
-            stream.write(page2);
-            stream.write(childPage1);
+            stream.write(h);
+            stream.write(p1);
+            stream.write(p2);
+            stream.write(p2_1);
             stream.end();
         });
 
         it('should sort by url by default', function(done) {
             var stream = ssg();
-            var home = mockFile('test/index.html', 'home');
-            var page1 = mockFile('test/xyz.html', 'page');
-            var page2 = mockFile('test/abc.html', 'page');
-            var page3 = mockFile('test/foo/index.html', 'section index');
-            var childPage1 = mockFile('test/foo/10-hello.html', 'child page');
-            var childPage2 = mockFile('test/foo/05-goodbye.html', 'child page');
+            var h = mockFile('test/index.html', 'home');
+            var p1 = mockFile('test/xyz.html', 'page');
+            var p2 = mockFile('test/abc.html', 'page');
+            var p3 = mockFile('test/foo/index.html', 'section index');
+            var p3_1 = mockFile('test/foo/10-hello.html', 'child page');
+            var p3_2 = mockFile('test/foo/05-goodbye.html', 'child page');
 
             stream.on('end', function() {
-                var urls = home.data.children.map(function(file) {
+                var urls = h.data.children.map(function(file) {
                     return file.data.url;
                 });
                 expect(urls).to.deep.equal([
@@ -263,7 +264,7 @@ describe('gulp-ssg()', function() {
                     '/foo/',
                     '/xyz.html'
                 ]);
-                var childUrls = page3.data.children.map(function(file) {
+                var childUrls = p3.data.children.map(function(file) {
                     return file.data.url;
                 });
                 expect(childUrls).to.deep.equal([
@@ -273,12 +274,12 @@ describe('gulp-ssg()', function() {
                 done();
             });
 
-            stream.write(home);
-            stream.write(page1);
-            stream.write(page2);
-            stream.write(page3);
-            stream.write(childPage1);
-            stream.write(childPage2);
+            stream.write(h);
+            stream.write(p1);
+            stream.write(p2);
+            stream.write(p3);
+            stream.write(p3_1);
+            stream.write(p3_2);
             stream.end();
         });
 
@@ -287,23 +288,23 @@ describe('gulp-ssg()', function() {
                 sort: 'order'
             };
             var stream = ssg(options);
-            var home = mockFile('test/index.html', 'home');
-            var page1 = mockFile('test/xyz.html', 'page');
-            var page2 = mockFile('test/abc.html', 'page');
-            var page3 = mockFile('test/def.html', 'page');
-            var page4 = mockFile('test/foo/index.html', 'section index');
-            var childPage1 = mockFile('test/foo/10-hello.html', 'section page');
-            var childPage2 = mockFile('test/foo/05-goodbye.html', 'section page');
+            var h = mockFile('test/index.html', 'home');
+            var p1 = mockFile('test/xyz.html', 'page');
+            var p2 = mockFile('test/abc.html', 'page');
+            var p3 = mockFile('test/def.html', 'page');
+            var p4 = mockFile('test/foo/index.html', 'section index');
+            var p4_1 = mockFile('test/foo/10-hello.html', 'section page');
+            var p4_2 = mockFile('test/foo/05-goodbye.html', 'section page');
 
-            page1.data = { order: 1 };
-            page2.data = { order: 12 };
-            page3.data = { order: 6 };
-            page4.data = { order: 2 };
-            childPage1.data = { order: 1 };
-            childPage2.data = { order: 2 };
+            p1.data = { order: 1 };
+            p2.data = { order: 12 };
+            p3.data = { order: 6 };
+            p4.data = { order: 2 };
+            p4_1.data = { order: 1 };
+            p4_2.data = { order: 2 };
 
             stream.on('end', function() {
-                var urls = home.data.children.map(function(file) {
+                var urls = h.data.children.map(function(file) {
                     return file.data.url;
                 });
                 expect(urls).to.deep.equal([
@@ -312,7 +313,7 @@ describe('gulp-ssg()', function() {
                     '/def.html',
                     '/abc.html'
                 ]);
-                var childUrls = page4.data.children.map(function(file) {
+                var childUrls = p4.data.children.map(function(file) {
                     return file.data.url;
                 });
                 expect(childUrls).to.deep.equal([
@@ -322,13 +323,13 @@ describe('gulp-ssg()', function() {
                 done();
             });
 
-            stream.write(home);
-            stream.write(page2);
-            stream.write(page1);
-            stream.write(page4);
-            stream.write(page3);
-            stream.write(childPage2);
-            stream.write(childPage1);
+            stream.write(h);
+            stream.write(p2);
+            stream.write(p1);
+            stream.write(p4);
+            stream.write(p3);
+            stream.write(p4_2);
+            stream.write(p4_1);
             stream.end();
         });
 
