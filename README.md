@@ -23,11 +23,11 @@ gulp.task('html', function() {
 
 This will add properties to each files `data` property:
 
-* `file.data.url` - `string` A URL, which is the `file.relative` with a slash prepended and any trailing `index.html` removed
-* `file.data.root` - `object` A pointer to the root file
-* `file.data.parent` - `object` A pointer to the parent file
-* `file.data.children` - `array` A list of pointers to child files
-* `file.data.siblings` - `array` A list of pointers to sibling files
+* `file.data.url` - A URL, which is the `file.relative` with a slash prepended and any trailing `index.html` removed
+* `file.data.root` - A pointer to the root file
+* `file.data.parent` - A pointer to the parent file
+* `file.data.children` - An array of pointers to child files
+* `file.data.siblings` - An array of pointers to sibling files
 
 To explain these a bit more:
 
