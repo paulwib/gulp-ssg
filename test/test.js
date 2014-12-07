@@ -45,6 +45,28 @@ describe('gulp-ssg()', function() {
             stream.end();
         });
 
+        it('should work with the .htm extension', function(done) {
+            var stream = ssg();
+            var h = mockFile('test/index.htm');
+            var p1 = mockFile('test/hello.htm');
+            var p2 = mockFile('test/foo/index.htm');
+            var p2_1 = mockFile('test/foo/bar.htm');
+
+            stream.on('end', function() {
+                expect(h.data.url).to.equal('/');
+                expect(p1.data.url).to.equal('/hello.htm');
+                expect(p2.data.url).to.equal('/foo/');
+                expect(p2_1.data.url).to.equal('/foo/bar.htm');
+                done();
+            });
+
+            stream.write(h);
+            stream.write(p1);
+            stream.write(p2);
+            stream.write(p2_1);
+            stream.end();
+        });
+
         it('should give each a file a pointer to the root', function(done) {
             var stream = ssg();
             var h = mockFile('test/index.html');

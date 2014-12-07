@@ -122,11 +122,12 @@ module.exports = function(options) {
 
     /**
      * Generate a URL for the file, adding base url and trimming any index.html
+     * or index.htm
      *
      * @param {object} file
      */
     function url(file) {
-        return options.baseUrl + file.relative.replace(/index.html$/, '');
+        return options.baseUrl + file.relative.replace(/index.html?$/, '');
     }
 
     /**
