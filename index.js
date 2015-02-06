@@ -252,8 +252,16 @@ module.exports = function(website, options) {
      * @return string url
      */
     function url(file, baseUrl) {
-        var dirname = path.dirname(file.relative).replace(/\\/g, '/');
-        return baseUrl + '/' + dirname.replace(/^\.\//, '') + '/';
+        var dirname = path.dirname(file.relative).replace(/\\/g, '/'),
+            basename = path.basename(file.relative, path.extname(file.relative));
+
+        if (options.prettyUrls === false || path.extname(file.relative) === '.html')
+        {
+            return baseUrl + '/' + dirname.replace(/^\.\//, '') + '/';
+        }
+        else {
+            return baseUrl + '/' + file.relative;
+        }
     }
 
     /**
