@@ -38,6 +38,48 @@ describe('gulp-ssg()', function() {
             stream.end();
         });
 
+        it('in prettyUrls false mode, should not rename paths', function(done) {
+            var site = {};
+            var options = {prettyUrls: '.md'};
+            var stream = ssg(site, options);
+
+            var file = getMarkdownFile('test/hello.png', 'test');
+            var pic = getMarkdownFile('test/sub/f/picture.png', 'test');
+            var actualMd = getMarkdownFile('test/text.md', 'test');
+
+            stream.on('end', function() {
+                var newFilePath = path.resolve(file.path);
+                var expectedFilePath = path.resolve('test/hello.png');
+                newFilePath.should.equal(expectedFilePath);
+                file.relative.should.equal('hello.png');
+                file.data.url.should.equal('/hello.png');
+                Buffer.isBuffer(file.contents).should.equal(true);
+
+                var newPicPath = path.resolve(pic.path);
+                var expectedPicPath = path.resolve('test/sub/f/picture.png');
+                newPicPath.should.equal(expectedPicPath);
+                pic.relative.should.equal('sub/f/picture.png');
+                pic.data.url.should.equal('/sub/f/picture.png');
+                Buffer.isBuffer(pic.contents).should.equal(true);
+
+                var mdPath = path.resolve(actualMd.path);
+                var expectedMdPath = path.resolve('test/text/index.html');
+                mdPath.should.equal(expectedMdPath);
+                actualMd.relative.should.equal('text/index.html');
+                actualMd.data.url.should.equal('/text/');
+
+                Buffer.isBuffer(actualMd.contents).should.equal(true);
+
+                done();
+            });
+
+            stream.write(file);
+            stream.write(pic);
+            stream.write(actualMd);
+            stream.end();
+        });
+
+
         it('should rename non-indexes to path/basename/index.html', function(done) {
             var stream = ssg({});
             var file = getMarkdownFile('test/hello.md', 'test');

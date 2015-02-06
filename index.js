@@ -22,7 +22,8 @@ module.exports = function(website, options) {
     options = _.extend({
         baseUrl: '',
         sort: 'url',
-        sectionProperties: []
+        sectionProperties: [],
+        prettyUrls: true
     }, options || {});
 
     // remove trailing slash from baseUrl
@@ -59,7 +60,7 @@ module.exports = function(website, options) {
             isIndex: isIndex,
             isHome: isHome,
             url: fileUrl,
-            sectionUrl: sectionUrl(fileUrl, isIndex)
+            sectionUrl: sectionUrl(fileUrl, isIndex, file)
         }, file.data || {});
 
         buffer.push(file);
@@ -202,6 +203,7 @@ module.exports = function(website, options) {
      *
      * @param object map The website map
      */
+
     function addSectionToFiles(map) {
         if (!map.files.length) {
             return;
@@ -228,9 +230,16 @@ module.exports = function(website, options) {
         var dirname = path.dirname(file.relative),
             basename = path.basename(file.relative, path.extname(file.relative));
 
-        file.path = file.base +
-            (basename !== 'index' ? dirname + '/' + basename : dirname) +
-            '/index.html';
+        if (options.prettyUrls === true || options.prettyUrls === path.extname(file.relative))
+        {
+            file.path = file.base +
+                (basename !== 'index' ? dirname + '/' + basename : dirname) +
+                '/index.html';
+        }
+        else {
+            file.path = file.base + dirname + '/' + basename + path.extname(file.relative);
+        }
+
 
         return dirname;
     }
@@ -243,8 +252,16 @@ module.exports = function(website, options) {
      * @return string url
      */
     function url(file, baseUrl) {
-        var dirname = path.dirname(file.relative).replace(/\\/g, '/');
-        return baseUrl + '/' + dirname.replace(/^\.\//, '') + '/';
+        var dirname = path.dirname(file.relative).replace(/\\/g, '/'),
+            basename = path.basename(file.relative, path.extname(file.relative));
+
+        if (options.prettyUrls === false || path.extname(file.relative) === '.html')
+        {
+            return baseUrl + '/' + dirname.replace(/^\.\//, '') + '/';
+        }
+        else {
+            return baseUrl + '/' + file.relative;
+        }
     }
 
     /**
@@ -253,8 +270,22 @@ module.exports = function(website, options) {
      * @param object file
      * @return string url
      */
-    function sectionUrl(url, isIndex) {
-        return isIndex ? url : url.split('/').slice(0, -2).join('/') + '/';
+    function sectionUrl(url, isIndex, file) {
+        var basename = path.basename(file.relative, path.extname(file.relative));
+        var result = isIndex ? url : url.split('/').slice(0, -2).join('/') + '/';
+
+        if (basename !== 'index') // which will only happen when in non prettyUrl mode
+        {
+            if(url === '/./'){
+                result = '/'
+            }
+            else {
+                result = url.split('/').slice(0, -1).join('/') + '/';
+            }
+        }
+        return result
+
+
     }
 
 };

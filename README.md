@@ -1,5 +1,8 @@
+
+### This is a fork which adds an [option to disable pretty URLs](https://github.com/paulwib/gulp-ssg/pull/2).
+
 gulp-ssg [![NPM version][npm-image]][npm-url] [![Dependency Status][depstat-image]][depstat-url] [![Build Status][travis-image]][travis-url]
-===
+
 
 A [gulp][] plugin to generate a static site.
 
