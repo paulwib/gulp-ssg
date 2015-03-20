@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <title>{{file.data.title}} | {{siteTitle}}</title>
+  </head>
+  <body>
+
+    <ul>
+      {{ * Base url hacked so works from filesystem, normally would use server * }}
+      <li><a href="index.html">Home</a></li>
+      {{#file.data.root.data.children}}
+      <li><a href=".{{data.url}}">{{data.title}}</a></li>
+      {{/file.data.root.data.children}}
+    </ul>
+
+    <h1>{{file.data.title}}</h1>
+    <section>
+    {{{file.contents}}}
+    </section>
+  </body>
+</html>

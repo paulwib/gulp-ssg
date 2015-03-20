@@ -47,25 +47,24 @@ var gulp = require('gulp');
 var ssg = require('gulp-ssg');
 var rename = require('gulp-rename');
 var data = require('gulp-data');
-var fm = require('front-matter');
-var marked = require('marked');
-var fs = require('fs');
-var es = require('event-stream');
-var hogan = require('hogan.js');
+var matter = require('gray-matter');
+var markdown = require('gulp-markdown');
+var wrap = require('gulp-wrap');
+var del = require('del');
 
 gulp.task('default', function() {
 
-    // Compile a template for rendering each page
-    var template = hogan.compile(String(fs.readFileSync('src/templates/template.html')));
-
     return gulp.src('src/content/*.md')
 
-        // Extract YAML front-matter, convert content to markdown via gulp-data
+        // Extract YAML front-matter using gulp-data
         .pipe(data(function(file) {
-            var content = fm(String(file.contents));
-            file.contents = new Buffer(marked(content.body));
-            return content.attributes;
+            var m = matter(String(file.contents));
+            file.contents = new Buffer(m.content);
+            return m.data;
         }))
+
+        // markdown -> HTML
+        .pipe(markdown())
 
         // Rename to .html
         .pipe(rename({ extname: '.html' }))
@@ -73,16 +72,16 @@ gulp.task('default', function() {
         // Run through gulp-ssg
         .pipe(ssg())
 
-        // Run each file through a template
-        .pipe(es.map(function(file, cb) {
-            file.contents = new Buffer(template.render(file));
-            cb(null, file);
-        }))
+        // Wrap file in template
+        .pipe(wrap(
+          { src: 'src/templates/template.html' },
+          { siteTitle: 'Example Website'},
+          { engine: 'hogan' }
+        ))
 
         // Output to build directory
         .pipe(gulp.dest('public/'));
 });
-
 ```
 
 ## Options
