@@ -17,7 +17,7 @@
     "url": "https://github.com/paulwib"
   },
   "dependencies": {
-    "lodash": "~2.4.1",
+    "lodash": "~3.5.0",
     "gulp-util": "~3.0.1",
     "through": "~2.3.4"
   },
