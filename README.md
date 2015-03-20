@@ -43,8 +43,9 @@ This plug-in follows the [gulp-data][] convention of using `file.data`, so anyth
 So how can this be used? It gets more interesting when combined with other pipes. For example:
 
 ```javascript
-var ssg = require('../');
 var gulp = require('gulp');
+var ssg = require('gulp-ssg');
+var rename = require('gulp-rename');
 var data = require('gulp-data');
 var fm = require('front-matter');
 var marked = require('marked');
@@ -52,12 +53,12 @@ var fs = require('fs');
 var es = require('event-stream');
 var hogan = require('hogan.js');
 
-gulp.task('html', function() {
+gulp.task('default', function() {
 
     // Compile a template for rendering each page
-    var template = hogan.compile(String(fs.readFileSync('templates/template.html')));
+    var template = hogan.compile(String(fs.readFileSync('src/templates/template.html')));
 
-    return gulp.src('content/**/*.md')
+    return gulp.src('src/content/*.md')
 
         // Extract YAML front-matter, convert content to markdown via gulp-data
         .pipe(data(function(file) {
@@ -65,6 +66,9 @@ gulp.task('html', function() {
             file.contents = new Buffer(marked(content.body));
             return content.attributes;
         }))
+
+        // Rename to .html
+        .pipe(rename({ extname: '.html' }))
 
         // Run through gulp-ssg
         .pipe(ssg())
@@ -76,7 +80,7 @@ gulp.task('html', function() {
         }))
 
         // Output to build directory
-        .pipe(gulp.dest('build/'));
+        .pipe(gulp.dest('public/'));
 });
 
 ```

@@ -63,8 +63,10 @@ module.exports = function(options) {
                 siblings: siblings(url)
             }, file.data || {});
 
-            this.emit('data', file);
+        }.bind(this));
 
+        Object.keys(buffer).forEach(function(url) {
+            this.emit('data', buffer[url]);
         }.bind(this));
 
         this.emit('end');
