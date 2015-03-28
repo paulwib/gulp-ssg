@@ -56,7 +56,7 @@ gulp.task('default', function() {
 
     return gulp.src('src/content/*.md')
 
-        // Extract YAML front-matter using gulp-data
+        // Extract YAML front-matter and assign with gulp-data
         .pipe(data(function(file) {
             var m = matter(String(file.contents));
             file.contents = new Buffer(m.content);
@@ -83,6 +83,8 @@ gulp.task('default', function() {
         .pipe(gulp.dest('public/'));
 });
 ```
+
+There are [complete examples with templates](https://github.com/paulwib/gulp-ssg/tree/master/example) in the git repo.
 
 ## Options
 
