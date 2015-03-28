@@ -21,7 +21,7 @@ gulp.task('html', function() {
 });
 ```
 
-This will add properties to each files `data` property:
+This will add properties to each file's `data` property:
 
 * `file.data.url` - A URL, which is the `file.relative` with a slash prepended and any trailing `index.html` removed
 * `file.data.root` - A pointer to the root file
@@ -84,7 +84,7 @@ gulp.task('default', function() {
 });
 ```
 
-There are [complete examples with templates](https://github.com/paulwib/gulp-ssg/tree/master/example) in the git repo.
+There are [complete examples with templates](https://github.com/paulwib/gulp-ssg/tree/master/examples) in the git repo.
 
 ## Options
 
