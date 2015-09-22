@@ -96,6 +96,10 @@ The base URL of the site, defaults to '/'. This should be the path to where your
 
 A property to sort pages by, defaults to `url`. For example, this could be a property like `order` extracted from the YAML front-matter.
 
+### cleanUrls `bool`
+
+Whether or not to remove `index.*` from URLs, defaults to true. Switch to false to have full path including any `index.*`.
+
 
 [gulp]:http://gulpjs.com
 [gulp-data]:https://github.com/colynb/gulp-data

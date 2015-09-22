@@ -21,7 +21,8 @@ module.exports = function(options) {
     var buffer = {};
     options = extend({
         baseUrl: '',
-        sort: 'url'
+        sort: 'url',
+        cleanUrls: true
     }, options || {});
 
     // Normalize trailing slash on base URL
@@ -129,7 +130,7 @@ module.exports = function(options) {
      * @param {object} file
      */
     function url(file) {
-        return options.baseUrl + file.relative.replace(/index\..+$/, '');
+        return options.baseUrl + (options.cleanUrls ? file.relative.replace(/index\..+$/, '') : file.relative);
     }
 
     /**
