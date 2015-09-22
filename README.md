@@ -23,7 +23,8 @@ gulp.task('html', function() {
 
 This will add properties to each file's `data` property:
 
-* `file.data.url` - A URL, which is the `file.relative` with a slash prepended and any trailing `index.html` removed
+* `file.data.url` - A URL, which is the `file.relative` with a slash prepended and any trailing `index.*` removed
+* `file.data.dirtyUrl` - As above, but without trailing `index.*` removed
 * `file.data.root` - A pointer to the root file
 * `file.data.parent` - A pointer to the parent file
 * `file.data.children` - An array of pointers to child files
@@ -95,10 +96,6 @@ The base URL of the site, defaults to '/'. This should be the path to where your
 ### sort `string`
 
 A property to sort pages by, defaults to `url`. For example, this could be a property like `order` extracted from the YAML front-matter.
-
-### cleanUrls `bool`
-
-Whether or not to remove `index.*` from URLs, defaults to true. Switch to false to have full path including any `index.*`.
 
 
 [gulp]:http://gulpjs.com

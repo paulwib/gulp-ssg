@@ -21,8 +21,7 @@ module.exports = function(options) {
     var buffer = {};
     options = extend({
         baseUrl: '',
-        sort: 'url',
-        cleanUrls: true
+        sort: 'url'
     }, options || {});
 
     // Normalize trailing slash on base URL
@@ -42,9 +41,8 @@ module.exports = function(options) {
         if (file.isStream()) {
             return this.emit('error', new PluginError('gulp-ssg',  'Streaming not supported'));
         }
-        var fileUrl = url(file);
-        file.data = extend({ url: fileUrl }, file.data || {});
-        buffer[fileUrl] = file;
+        file.data = extend({ url: cleanUrl(file), dirtyUrl: url(file) }, file.data || {});
+        buffer[cleanUrl(file)] = file;
     }
 
     /**
@@ -124,13 +122,21 @@ module.exports = function(options) {
     }
 
     /**
-     * Generate a URL for the file, adding base url and trimming any index.html
-     * or index.htm
+     * Generate the URL for the file
      *
      * @param {object} file
      */
     function url(file) {
-        return options.baseUrl + (options.cleanUrls ? file.relative.replace(/index\..+$/, '') : file.relative);
+        return options.baseUrl + file.relative;
+    }
+
+    /**
+     * Generate a clean URL for the file, without any trailing index.*
+     *
+     * @param {object} file
+     */
+    function cleanUrl(file) {
+        return url(file).replace(/index\..+$/, '');
     }
 
     /**

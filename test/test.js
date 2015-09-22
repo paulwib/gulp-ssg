@@ -357,21 +357,18 @@ describe('gulp-ssg()', function() {
             stream.end();
         });
 
-        it('should support NOT removing index.html from urls', function(done) {
-            var options = {
-                cleanUrls: false
-            };
-            var stream = ssg(options);
+        it('should store dirty URL with any index.* intact', function(done) {
+            var stream = ssg();
             var h = mockFile('test/index.md');
             var p1 = mockFile('test/hello.xhtml');
             var p2 = mockFile('test/foo/index.htm');
             var p2_1 = mockFile('test/foo/bar.xml');
 
             stream.on('end', function() {
-                expect(h.data.url).to.equal('/index.md');
-                expect(p1.data.url).to.equal('/hello.xhtml');
-                expect(p2.data.url).to.equal('/foo/index.htm');
-                expect(p2_1.data.url).to.equal('/foo/bar.xml');
+                expect(h.data.dirtyUrl).to.equal('/index.md');
+                expect(p1.data.dirtyUrl).to.equal('/hello.xhtml');
+                expect(p2.data.dirtyUrl).to.equal('/foo/index.htm');
+                expect(p2_1.data.dirtyUrl).to.equal('/foo/bar.xml');
                 done();
             });
 
