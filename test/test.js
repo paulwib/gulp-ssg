@@ -57,6 +57,8 @@ describe('gulp-ssg()', function() {
                 expect(p1.data.root.data.url).to.equal('/');
                 expect(p2.data.root.data.url).to.equal('/');
                 expect(p2_1.data.root.data.url).to.equal('/');
+                expect(p2_1.data.root.data.children).not.to.be.null;
+                expect(p2_1.data.root.data.children.length).to.equal(2);
                 done();
             });
 
@@ -208,10 +210,16 @@ describe('gulp-ssg()', function() {
             var p2_1 = mockFile('test/foo/bar.html');
 
             stream.on('end', function() {
+                // Check page URLs
                 expect(h.data.url).to.equal('/path/to/site/');
                 expect(p1.data.url).to.equal('/path/to/site/hello.html');
                 expect(p2.data.url).to.equal('/path/to/site/foo/');
                 expect(p2_1.data.url).to.equal('/path/to/site/foo/bar.html');
+
+                // Check reference to root
+                expect(p2_1.data.root.data.url).to.equal('/path/to/site/');
+                expect(p2_1.data.root.data.children).not.to.be.null;
+                expect(p2_1.data.root.data.children.length).to.equal(2);
                 done();
             });
 
@@ -334,7 +342,7 @@ describe('gulp-ssg()', function() {
             stream.end();
         });
 
-        it('should give not break if there is no root file', function(done) {
+        it('should not break if there is no root file', function(done) {
 
             var stream = ssg();
             var p1 = mockFile('test/hello.html');

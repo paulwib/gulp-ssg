@@ -52,11 +52,10 @@ module.exports = function(options) {
         if (buffer.length === 0) {
             return this.emit('end');
         }
-
         Object.keys(buffer).forEach(function(url) {
             var file = buffer[url];
             file.data = extend({
-                root: buffer['/'] || null,
+                root: buffer[options.baseUrl] || null,
                 parent: parent(url),
                 children: children(url),
                 siblings: siblings(url)
