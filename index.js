@@ -4,7 +4,6 @@ var through = require('through');
 var gutil = require('gulp-util');
 var PluginError = gutil.PluginError;
 var File = gutil.File;
-var extend = require('lodash').extend;
 
 /**
  * Add url, root, parent, siblings and children properties to files, reflecting the structure of
@@ -19,7 +18,7 @@ var extend = require('lodash').extend;
  */
 module.exports = function(options) {
     var buffer = {};
-    options = extend({
+    options = Object.assign({
         baseUrl: '',
         sort: 'url'
     }, options || {});
@@ -41,7 +40,7 @@ module.exports = function(options) {
         if (file.isStream()) {
             return this.emit('error', new PluginError('gulp-ssg',  'Streaming not supported'));
         }
-        file.data = extend({ url: cleanUrl(file), dirtyUrl: url(file) }, file.data || {});
+        file.data = Object.assign({ url: cleanUrl(file), dirtyUrl: url(file) }, file.data || {});
         buffer[cleanUrl(file)] = file;
     }
 
@@ -54,7 +53,7 @@ module.exports = function(options) {
         }
         Object.keys(buffer).forEach(function(url) {
             var file = buffer[url];
-            file.data = extend({
+            file.data = Object.assign({
                 root: buffer[options.baseUrl] || null,
                 parent: parent(url),
                 children: children(url),
