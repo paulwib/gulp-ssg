@@ -107,5 +107,5 @@ A property to sort pages by, defaults to `url`. For example, this could be a pro
 [depstat-url]: https://david-dm.org/paulwib/gulp-ssg
 [depstat-image]: https://david-dm.org/paulwib/gulp-ssg.svg?style=flat
 
-[travis-image]: http://img.shields.io/travis/paulwib/gulp-ssg/master.svg?style=flat
+[travis-image]: https://travis-ci.org/paulwib/gulp-ssg.svg?branch=master
 [travis-url]: https://travis-ci.org/paulwib/gulp-ssg
