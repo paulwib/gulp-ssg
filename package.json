@@ -29,17 +29,13 @@
     "gulp-rename": "^1.2.0",
     "gulp-wrap": "^0.13.0",
     "hogan.js": "^3.0.0",
-    "mocha": "^3.0.0",
-    "mversion": "^1.6.1"
+    "mocha": "^3.0.0"
   },
   "engines": {
     "node": ">=4"
   },
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha",
-    "release-patch": "./node_modules/.bin/mversion patch -m 'Released patch version v%s'",
-    "release-minor": "./node_modules/.bin/mversion minor -m 'Released minor version v%s'",
-    "release-major": "./node_modules/.bin/mversion major -m 'Released major version v%s'"
+    "test": "./node_modules/mocha/bin/mocha"
   },
   "keywords": [
     "gulpplugin",
