@@ -27,7 +27,7 @@ gulp.task('default', function() {
         // Extract YAML front-matter using gulp-data
         .pipe(data(function(file) {
             var m = matter(String(file.contents));
-            file.contents = new Buffer(m.content);
+            file.contents = new Buffer.from(m.content);
             return m.data;
         }))
 
