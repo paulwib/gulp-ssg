@@ -1,9 +1,8 @@
 'use strict';
 
 var through = require('through');
-var gutil = require('gulp-util');
-var PluginError = gutil.PluginError;
-var File = gutil.File;
+var PluginError = require('plugin-error');
+var File = require('vinyl');
 
 /**
  * Add url, root, parent, siblings and children properties to files, reflecting the structure of

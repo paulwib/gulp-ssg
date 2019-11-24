@@ -1,11 +1,11 @@
 'use strict';
 /* globals describe, it */
-var ssg = require('../');
 var expect = require('chai').expect;
 var fs = require('fs');
 var path = require('path');
-var File = require('gulp-util').File;
+var File = require('vinyl');
 var Buffer = require('buffer').Buffer;
+var ssg = require('../');
 
 describe('gulp-ssg()', function() {
 
@@ -17,7 +17,7 @@ describe('gulp-ssg()', function() {
             cwd: '',
             base: 'test/',
             path: path,
-            contents: new Buffer(content)
+            contents: new Buffer.from(content)
         });
     }
 
